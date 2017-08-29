@@ -53,7 +53,7 @@ struct nsv_profile_tone
   const char *gc_dir;
 };
 
-static const struct nsv_profile_tone nsv_profile_tones[] =
+const struct nsv_profile_tone nsv_profile_tone_keys[] =
 {
   {NSV_PROFILE_RINGTONE, PROFILEKEY_RINGING_ALERT_TONE, 1, NULL},
   {NSV_PROFILE_CALENDAR, "/apps/calendar/calendar-alarm-tone", 2, "/apps/calendar"},
@@ -71,7 +71,7 @@ struct nsv_profile_volume
   const char *dir;
 };
 
-static const struct nsv_profile_volume nsv_profile_volumes[] =
+const struct nsv_profile_volume nsv_profile_volume_keys[] =
 {
   {NSV_PROFILE_RINGTONE, PROFILEKEY_RINGING_ALERT_VOLUME, 1, NULL},
   {NSV_PROFILE_CALENDAR, NULL, 0, NULL},
@@ -87,7 +87,7 @@ struct nsv_profile_vibra
   const char *pattern;
 };
 
-static const struct nsv_profile_vibra nsv_profile_vibras[] =
+const struct nsv_profile_vibra nsv_profile_vibra_values[] =
 {
   {NSV_PROFILE_RINGTONE, "PatternIncomingCall"},
   {NSV_PROFILE_CALENDAR, "PatternIncomingCall"},
@@ -105,7 +105,7 @@ struct nsv_profile_tone_fallback
   const char *sound_file;
 };
 
-static const struct nsv_profile_tone_fallback nsv_profile_tone_fallbacks[] =
+const struct nsv_profile_tone_fallback nsv_profile_tone_fallbacks[] =
 {
   {NSV_PROFILE_RINGTONE, PROFILEKEY_RINGING_ALERT_TONE, 1, "fallback"},
   {NSV_PROFILE_CALENDAR, NULL, 2, "/usr/share/sounds/ui-calendar_alarm_default.aac"},
@@ -128,9 +128,9 @@ _nsv_profile_emit_volume_changed(NsvProfile *self, const char *key, int volume)
 
   NsvProfilePrivate *priv = self->priv;
 
-  for (i = 0; i < G_N_ELEMENTS(nsv_profile_volumes); i++)
+  for (i = 0; i < G_N_ELEMENTS(nsv_profile_volume_keys); i++)
   {
-    const struct nsv_profile_volume *v = &nsv_profile_volumes[i];
+    const struct nsv_profile_volume *v = &nsv_profile_volume_keys[i];
 
     if (!v->profile_key || !g_str_equal(v->profile_key, key))
         continue;
@@ -151,9 +151,9 @@ _nsv_profile_emit_tone_changed(NsvProfile *self, const char *key,
   NsvProfilePrivate *priv = self->priv;
   int i;
 
-  for (i = 0; i < G_N_ELEMENTS(nsv_profile_tones); i++)
+  for (i = 0; i < G_N_ELEMENTS(nsv_profile_tone_keys); i++)
   {
-    const struct nsv_profile_tone *t = &nsv_profile_tones[i];
+    const struct nsv_profile_tone *t = &nsv_profile_tone_keys[i];
     const gchar *tone;
 
     if (!t->profile_key || !g_str_equal(t->profile_key, key))
@@ -202,10 +202,10 @@ _profile_track_value_fn_data_cb(const char *profile, const char *key,
     int i;
     int v = profile_parse_int(val);
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_tones); i++)
+    for (i = 0; i < G_N_ELEMENTS(nsv_profile_tone_keys); i++)
       _nsv_profile_emit_tone_changed(self, key, val);
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_volumes); i++)
+    for (i = 0; i < G_N_ELEMENTS(nsv_profile_volume_keys); i++)
       _nsv_profile_emit_volume_changed(self, key, v);
   }
 }
@@ -305,7 +305,7 @@ _nsv_volume_key_changed_cb(GConfClient *client, guint cnxn_id,
     const char *key = gconf_entry_get_key(entry);
     int volume = gconf_value_get_int(value);
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_volumes); i++)
+    for (i = 0; i < G_N_ELEMENTS(nsv_profile_volume_keys); i++)
       _nsv_profile_emit_volume_changed(self, key, volume);
   }
 }
@@ -325,7 +325,7 @@ _nsv_tone_key_changed_cb(GConfClient *client, guint cnxn_id, GConfEntry *entry,
     const char *key = gconf_entry_get_key(entry);
     const char *tone = gconf_value_get_string(value);
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_tones); i++)
+    for (i = 0; i < G_N_ELEMENTS(nsv_profile_tone_keys); i++)
       _nsv_profile_emit_tone_changed(self, key, tone);
   }
 }
@@ -373,9 +373,9 @@ nsv_profile_init(NsvProfile *self)
     else
       priv->sound_level = 80;
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_tones); i++)
+    for (i = 0; i < G_N_ELEMENTS(nsv_profile_tone_keys); i++)
     {
-      const struct nsv_profile_tone *tone = &nsv_profile_tones[i];
+      const struct nsv_profile_tone *tone = &nsv_profile_tone_keys[i];
 
       if (tone->type == 1)
       {
@@ -423,9 +423,9 @@ nsv_profile_init(NsvProfile *self)
       }
     }
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_volumes); i++)
+    for (i = 0; i < G_N_ELEMENTS(nsv_profile_volume_keys); i++)
     {
-      const struct nsv_profile_volume *volume = &nsv_profile_volumes[i];
+      const struct nsv_profile_volume *volume = &nsv_profile_volume_keys[i];
 
       if (volume->type == 1)
       {
@@ -447,9 +447,9 @@ nsv_profile_init(NsvProfile *self)
       }
     }
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_vibras); i++)
+    for (i = 0; i < G_N_ELEMENTS(nsv_profile_vibra_values); i++)
     {
-      const struct nsv_profile_vibra *vibra = &nsv_profile_vibras[i];
+      const struct nsv_profile_vibra *vibra = &nsv_profile_vibra_values[i];
 
       g_hash_table_replace(priv->vibras, g_strdup(vibra->name),
                            g_strdup(vibra->pattern));
@@ -531,8 +531,8 @@ GList *nsv_profile_get_volume_keys(NsvProfile *self)
   GList *l = NULL;
   int i;
 
-  for (i = 0; i < G_N_ELEMENTS(nsv_profile_volumes); i++)
-    l = g_list_append(l, (gpointer)nsv_profile_volumes[i].name);
+  for (i = 0; i < G_N_ELEMENTS(nsv_profile_volume_keys); i++)
+    l = g_list_append(l, (gpointer)nsv_profile_volume_keys[i].name);
 
   return l;
 }
@@ -542,8 +542,8 @@ GList *nsv_profile_get_tone_keys(NsvProfile *self)
   GList *l = NULL;
   int i;
 
-  for (i = 0; i < G_N_ELEMENTS(nsv_profile_tones); i++)
-    l = g_list_append(l, (gpointer)nsv_profile_tones[i].key);
+  for (i = 0; i < G_N_ELEMENTS(nsv_profile_tone_keys); i++)
+    l = g_list_append(l, (gpointer)nsv_profile_tone_keys[i].key);
 
   return l;
 }
@@ -553,9 +553,9 @@ nsv_profile_set_tone(NsvProfile *self, const char *profile, char *val)
 {
   int i;
 
-  for (i = 0; i < G_N_ELEMENTS(nsv_profile_tones); i++)
+  for (i = 0; i < G_N_ELEMENTS(nsv_profile_tone_keys); i++)
   {
-    const struct nsv_profile_tone *tone = &nsv_profile_tones[i];
+    const struct nsv_profile_tone *tone = &nsv_profile_tone_keys[i];
 
     if (g_str_equal(tone->key, profile))
     {
