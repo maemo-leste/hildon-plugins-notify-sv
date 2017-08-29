@@ -177,7 +177,7 @@ _alarm_clock_playback_started_cb(NsvPlayback *self, nsv_notification *n)
 {
   struct alarm_clock_private *priv = (struct alarm_clock_private *)n->private;
 
-  sp_timestamp("hildon-plugins-notify-sv: playing: Clock");
+  _sp_timestamp("playing: Clock");
 
   if (n->vibra_pattern && n->vibra_enabled)
     nsv_vibra_start(n->vibra_pattern);

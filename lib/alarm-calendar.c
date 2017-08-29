@@ -57,7 +57,7 @@ _alarm_calendar_playback_error_cb(NsvPlayback *self, nsv_notification *n)
 static void
 _alarm_calendar_playback_started_cb(NsvPlayback *self, nsv_notification *n)
 {
-  sp_timestamp("hildon-plugins-notify-sv: playing: Calendar");
+  _sp_timestamp("playing: Calendar");
 
   if (n->vibra_pattern && n->vibra_enabled)
     nsv_vibra_start(n->vibra_pattern);

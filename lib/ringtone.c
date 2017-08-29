@@ -48,7 +48,7 @@ _ringtone_playback_error_cb(NsvPlayback *self, nsv_notification *n)
 static void
 _ringtone_playback_started_cb(NsvPlayback *self, nsv_notification *n)
 {
-  sp_timestamp("hildon-plugins-notify-sv: playing: Ringtone");
+  _sp_timestamp("playing: Ringtone");
 
   if (n->vibra_pattern && n->vibra_enabled)
     nsv_vibra_start(n->vibra_pattern);

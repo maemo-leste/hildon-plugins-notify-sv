@@ -72,7 +72,7 @@ _event_playback_error_cb(NsvPlayback *self, nsv_notification *n)
 static void
 _event_playback_started_cb(NsvPlayback *self, nsv_notification *n)
 {
-  sp_timestamp("hildon-plugins-notify-sv: playing: Event");
+  _sp_timestamp("playing: Event");
 
   if (n->vibra_pattern && n->vibra_enabled)
     nsv_vibra_start(n->vibra_pattern);

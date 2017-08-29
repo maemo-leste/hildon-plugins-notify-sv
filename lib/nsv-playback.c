@@ -11,6 +11,8 @@
 #include <errno.h>
 #include <string.h>
 
+#include "config.h"
+
 #include "nsv-playback.h"
 
 #define NSV_TYPE_PLAYBACK (nsv_playback_get_type ())
@@ -667,8 +669,7 @@ _nsv_playback_play_real(NsvPlayback *self)
   if (priv->media_role)
     pa_proplist_sets(proplist, "media.role", priv->media_role);
 
-  priv->pa_stream = pa_stream_new_with_proplist(priv->pa_context,
-                                                "hildon-plugins-notify-sv",
+  priv->pa_stream = pa_stream_new_with_proplist(priv->pa_context, PACKAGE,
                                                 &spec, 0, proplist);
   pa_proplist_free(proplist);
 
@@ -739,12 +740,12 @@ nsv_playback_init(NsvPlayback *self)
     goto emit_error;
 
   proplist = pa_proplist_new();
-  pa_proplist_sets(proplist, "application.name", "hildon-plugins-notify-sv");
-  pa_proplist_sets(proplist, "application.id", "hildon-plugins-notify-sv");
-  pa_proplist_sets(proplist, "application.version", "0.50");
+  pa_proplist_sets(proplist, "application.name", PACKAGE);
+  pa_proplist_sets(proplist, "application.id", PACKAGE);
+  pa_proplist_sets(proplist, "application.version", PACKAGE_VERSION);
 
   priv->pa_context =
-      pa_context_new_with_proplist(api, "hildon-plugins-notify-sv", proplist);
+      pa_context_new_with_proplist(api, PACKAGE, proplist);
 
   pa_proplist_free(proplist);
 

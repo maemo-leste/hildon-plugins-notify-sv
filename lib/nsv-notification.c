@@ -214,7 +214,7 @@ nsv_notification_finish(struct nsv_notification *n)
 
       if (event_status->policy)
       {
-        sp_timestamp("hildon-plugins-notify-sv: policy: Request stop");
+        _sp_timestamp("policy: Request stop");
         nsv_policy_stop_permission(event_status->policy);
       }
       else
@@ -440,7 +440,7 @@ _nsv_notification_policy_play_reply_cb(NsvPolicy *policy,
 {
   struct notification_event_status *event_status;
 
-  sp_timestamp("hildon-plugins-notify-sv: policy: Play received.");
+  _sp_timestamp("policy: Play received.");
   event_status = n->event_status;
 
   if (event_status->stopped)
@@ -460,7 +460,7 @@ _nsv_notification_policy_stop_reply_cb(NsvPolicy *policy,
   struct notification_event_status *event_status;
   struct notification_impl *impl;
 
-  sp_timestamp("hildon-plugins-notify-sv: policy: Stop received.");
+  _sp_timestamp("policy: Stop received.");
 
   event_status = n->event_status;
   g_signal_handlers_disconnect_matched(
@@ -548,7 +548,7 @@ start_notification(nsv_notification *n)
                      G_CALLBACK(_nsv_notification_policy_command_cb), n);
     g_signal_connect(G_OBJECT(policy), "stop-reply",
                      G_CALLBACK(_nsv_notification_policy_stop_reply_cb), n);
-    sp_timestamp("hildon-plugins-notify-sv: Requesting play permission.");
+    _sp_timestamp("Requesting play permission.");
     nsv_policy_play_permission(event_status->policy);
   }
   else

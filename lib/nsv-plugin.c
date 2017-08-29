@@ -31,7 +31,7 @@ nsv_plugin_play_event(GHashTable *hints, gchar *sender)
   gchar *vibra_pattern;
   gint volume;
 
-  sp_timestamp("hildon-plugins-notify-sv: Notification received.");
+  _sp_timestamp("Notification received.");
 
   val = (const GValue *)g_hash_table_lookup(hints, "category");
 
