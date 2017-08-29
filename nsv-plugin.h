@@ -4,7 +4,7 @@
 void nsv_plugin_load();
 void nsv_plugin_unload();
 
-gint nsv_plugin_play_event(GHashTable *parameters, gchar *sender);
+gint nsv_plugin_play_event(GHashTable *hints, gchar *sender);
 void nsv_plugin_stop_event(gint id);
 
 #endif // NSVPLUGIN_H

@@ -20,7 +20,7 @@ nsv_plugin_unload()
 }
 
 gint
-nsv_plugin_play_event(GHashTable *parameters, gchar *sender)
+nsv_plugin_play_event(GHashTable *hints, gchar *sender)
 {
   const gchar *s;
   const char *category;
@@ -33,7 +33,7 @@ nsv_plugin_play_event(GHashTable *parameters, gchar *sender)
 
   sp_timestamp("hildon-plugins-notify-sv: Notification received.");
 
-  val = (const GValue *)g_hash_table_lookup(parameters, "category");
+  val = (const GValue *)g_hash_table_lookup(hints, "category");
 
   if (!G_VALUE_HOLDS_STRING(val) || !(s = g_value_get_string(val)))
     goto err_cat;
@@ -58,7 +58,7 @@ nsv_plugin_play_event(GHashTable *parameters, gchar *sender)
     category = "Email";
   else if (g_str_equal(s, "alarm-event"))
   {
-    val = g_hash_table_lookup(parameters, "alarm-type");
+    val = g_hash_table_lookup(hints, "alarm-type");
 
     if (G_VALUE_HOLDS_STRING(val) && (s = g_value_get_string(val)) &&
         g_str_equal(s, "clock"))
@@ -75,28 +75,28 @@ nsv_plugin_play_event(GHashTable *parameters, gchar *sender)
   else
     goto err_cat;
 
-  val = (const GValue *)g_hash_table_lookup(parameters, "sound-file");
+  val = (const GValue *)g_hash_table_lookup(hints, "sound-file");
 
   if (val)
     sound_file = g_value_dup_string(val);
   else
     sound_file = NULL;
 
-  val = (const GValue *)g_hash_table_lookup(parameters, "volume");
+  val = (const GValue *)g_hash_table_lookup(hints, "volume");
 
   if (val)
     volume = g_value_get_int(val);
   else
     volume = 100;
 
-  val = (const GValue *)g_hash_table_lookup(parameters, "vibra");
+  val = (const GValue *)g_hash_table_lookup(hints, "vibra");
 
   if (val)
     vibra_pattern = g_value_dup_string(val);
   else
     vibra_pattern = NULL;
 
-  val = (const GValue *)g_hash_table_lookup(parameters, "override");
+  val = (const GValue *)g_hash_table_lookup(hints, "override");
 
   if (val)
     override = g_value_get_boolean(val);
