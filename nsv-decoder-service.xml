@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<node name="/com/nokia/NsvDecoder">
+  <interface name="com.nokia.NsvDecoder">
+    <annotation name="org.freedesktop.DBus.GLib.CSymbol" value="nsv_decoder_service"/>
+    <method name="Decode">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value="true"/>
+      <arg type="s" name="Category" direction="in" />
+      <arg type="s" name="Source_Filename" direction="in" />
+      <arg type="s" name="Target_Filename" direction="in" />
+    </method>
+    <signal name="Decoded">
+    <arg type="s" name="Category" direction="out" />
+    <arg type="s" name="Source_Filename" direction="out" />
+    <arg type="s" name="Target_Filename" direction="out" />
+    </signal>
+    <signal name="ErrorDecoding">
+    <arg type="s" name="Category" direction="out" />
+    <arg type="s" name="Source_Filename" direction="out" />
+    <arg type="s" name="Target_Filename" direction="out" />
+    </signal>
+  </interface>
+</node>
