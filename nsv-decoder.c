@@ -82,7 +82,7 @@ _nsv_decoder_decoded_cb(DBusGProxy *proxy, gchar *category, gchar *source_file,
   }
   else
   {
-    g_log(0, G_LOG_LEVEL_WARNING, "Can't make a decoded filename");
+    g_warning("Can't make a decoded filename");
     g_unlink(target_file);
   }
 }

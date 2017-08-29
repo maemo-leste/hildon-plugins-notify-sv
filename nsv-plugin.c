@@ -114,8 +114,7 @@ nsv_plugin_play_event(GHashTable *hints, gchar *sender)
   return id;
 
 err_cat:
-  g_log(0, G_LOG_LEVEL_DEBUG,
-        "No category for notification, no need to do anything.");
+  g_debug("No category for notification, no need to do anything.");
 
   return -1;
 }

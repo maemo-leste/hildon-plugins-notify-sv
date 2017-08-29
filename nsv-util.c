@@ -189,9 +189,8 @@ nsv_util_valid_sound_file(const char *file)
 
   if (handle == -1)
   {
-    g_log(0, G_LOG_LEVEL_DEBUG,
-          "valid_sound_file: Unable to open file '%s': %s",
-          file, strerror(errno));
+    g_debug("valid_sound_file: Unable to open file '%s': %s", file,
+            strerror(errno));
     return FALSE;
   }
 
@@ -209,9 +208,8 @@ nsv_util_valid_sound_file(const char *file)
       case SF_FORMAT_FLOAT:
       case SF_FORMAT_ULAW:
       case SF_FORMAT_ALAW:
-        g_log(0, G_LOG_LEVEL_DEBUG,
-              "valid_sound_file: File '%s' is valid (format = 0x%X, channels = %d, samplerate = %d",
-              file, sfinfo.format, sfinfo.channels, sfinfo.samplerate);
+        g_debug("valid_sound_file: File '%s' is valid (format = 0x%X, channels = %d, samplerate = %d",
+                file, sfinfo.format, sfinfo.channels, sfinfo.samplerate);
         rv = TRUE;
         break;
       default:
@@ -222,9 +220,8 @@ nsv_util_valid_sound_file(const char *file)
   }
   else
   {
-    g_log(0, G_LOG_LEVEL_DEBUG,
-          "valid_sound_file: sndfile failed to open file '%s': %s", file,
-          sf_strerror(0));
+    g_debug("valid_sound_file: sndfile failed to open file '%s': %s", file,
+            sf_strerror(0));
   }
 
   close(handle);

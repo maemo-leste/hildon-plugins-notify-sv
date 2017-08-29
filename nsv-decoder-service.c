@@ -105,7 +105,7 @@ nsv_decoder_service_class_init(NsvDecoderServiceClass *klass)
 static gboolean
 exit_timeout_cb(gpointer user_data)
 {
-  g_log(0, G_LOG_LEVEL_DEBUG, "Timed out, exiting");
+  g_debug("Timed out, exiting");
   exit(0);
 }
 
@@ -155,7 +155,7 @@ NsvDecoderService *nsv_decoder_service_new()
 
   if (self->priv->error)
   {
-    g_log(0, G_LOG_LEVEL_ERROR, "ERROR: %s", self->priv->error->message);
+    g_error("ERROR: %s", self->priv->error->message);
 
     /* FIXME - WTF?!? */
     while (1)
@@ -260,7 +260,7 @@ nsv_decoder_service_decode(NsvDecoderService *self, const gchar *category,
   NsvDecoderTask *  task;
   NsvDecoderServicePrivate *priv = self->priv;
 
-  g_log(0, G_LOG_LEVEL_DEBUG, "Decoding (%s): %s -> %s",
+  g_debug("Decoding (%s): %s -> %s",
         category, source_filename, target_filename);
 
   if (priv->exit_timeout_id)

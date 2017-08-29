@@ -76,7 +76,7 @@ clock_stop(nsv_notification *n)
   {
     if (n->vibra_pattern && n->vibra_enabled)
     {
-      g_log(0, G_LOG_LEVEL_DEBUG, "stop vibra");
+      g_debug("stop vibra");
       nsv_vibra_stop(n->vibra_pattern);
     }
 

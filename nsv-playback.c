@@ -609,9 +609,8 @@ _nsv_playback_play_real(NsvPlayback *self)
 
     if (priv->handle == -1)
     {
-      g_log(0, G_LOG_LEVEL_WARNING,
-            "Unable to open file descriptor '%s': %s (%d)", priv->filename,
-            strerror(errno), errno);
+      g_warning("Unable to open file descriptor '%s': %s (%d)", priv->filename,
+                strerror(errno), errno);
       goto emit_error;
     }
 

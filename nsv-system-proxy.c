@@ -160,13 +160,11 @@ nsv_system_proxy_init(NsvSystemProxy *self)
                                   self);
       }
       else
-        g_log(0, G_LOG_LEVEL_WARNING,
-              "Failed to create DBus system bus proxy!");
+        g_warning("Failed to create DBus system bus proxy!");
     }
     else
     {
-      g_log(0, G_LOG_LEVEL_WARNING,
-            "Failed to connect to system bus: %s", error->message);
+      g_warning("Failed to connect to system bus: %s", error->message);
       g_error_free(error);
     }
   }
