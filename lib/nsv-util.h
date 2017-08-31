@@ -3,6 +3,8 @@
 
 #include "config.h"
 
+#include "sp_timestamp.h"
+
 void nsv_vibra_start(const char *pattern);
 void nsv_vibra_stop(const char *pattern);
 void nsv_tone_start(guint event);

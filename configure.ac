@@ -20,6 +20,8 @@ AC_SUBST(X_CFLAGS)
 AM_GCONF_SOURCE_2
 AC_PATH_PROG(GCONFTOOL, gconftool-2)
 
+PKG_PROG_PKG_CONFIG
+
 #+++++++++++++++
 # Misc programs 
 #+++++++++++++++
@@ -40,13 +42,14 @@ AC_SUBST(NSV_DECODER_SERVICE_CFLAGS)
 
 PKG_CHECK_MODULES(HILDON_PLUGINS_NOTIFY_SV,
 			[glib-2.0 dnl
+			dbus-glib-1 dnl
 			gconf-2.0 dnl
 			profile dnl
 			mce dnl
 			sndfile dnl
 			gio-2.0 dnl
 			libplayback-1 dnl
-			pulsecore 
+			pulsecore dnl
 			libpulse dnl
 			libpulse-mainloop-glib dnl
 			x11])
@@ -61,19 +64,11 @@ AC_SUBST(HILDON_PLUGINS_NOTIFY_SV_CFLAGS)
 hildondesktoplibdir=`pkg-config libhildondesktop-1 --variable=hildondesktoplibdir`
 AC_SUBST(hildondesktoplibdir)
 
-
 AC_OUTPUT([
 Makefile
 src/Makefile
 lib/Makefile
+com.nokia.NsvDecoder.service
+hildon-plugins-notify-sv.pc
 ])
-
-#com.nokia.HildonHome.service
-#org.freedesktop.Notifications.service
-#com.nokia.HildonSVNotificationDaemon.service
-#src/home.conf
-#src/home.plugins
-#src/home.safe-set
-#src/notification.conf
-#src/notification.safe-set
 

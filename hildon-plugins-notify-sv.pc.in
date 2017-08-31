@@ -1,0 +1,9 @@
+prefix=@prefix@
+includedir=@includedir@/@PACKAGE_NAME@
+
+Name: @PACKAGE_NAME@
+Description: Sound and vibra notification plugin
+Version: @PACKAGE_VERSION@
+Requires: 
+Libs: -l@PACKAGE_NAME@
+Cflags: -I${includedir}

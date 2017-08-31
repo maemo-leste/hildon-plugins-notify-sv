@@ -2,8 +2,6 @@
 
 #include <stdio.h>
 
-#include "sp_timestamp.h"
-
 #include "nsv-private.h"
 #include "nsv-notification.h"
 #include "nsv-playback.h"

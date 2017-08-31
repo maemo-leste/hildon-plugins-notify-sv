@@ -1,4 +1,5 @@
 #include <glib-object.h>
+#include <glib/gstdio.h>
 #include <gst/gstelement.h>
 #include <gst/controller/gstcontroller.h>
 
@@ -218,25 +219,6 @@ nsv_decoder_task_init(NsvDecoderTask *self)
   self->priv = g_new0(NsvDecoderTaskPrivate, 1);
 }
 
-static void
-nsv_decoder_task_gst_cleanup(NsvDecoderTask *self)
-{
-  NsvDecoderTaskPrivate *priv = self->priv;
-
-  if (priv->gst_volume_controller)
-  {
-    gst_object_unref(priv->gst_volume_controller);
-    priv->gst_volume_controller = NULL;
-  }
-
-  if (priv->pipeline)
-  {
-    gst_element_set_state(priv->pipeline, GST_STATE_NULL);
-    gst_object_unref(priv->pipeline);
-    priv->pipeline = NULL;
-  }
-}
-
 static gboolean
 _nsv_decoder_task_emit_suceeded_cb(gpointer user_data)
 {
@@ -385,23 +367,22 @@ _nsv_decoder_task_gst_bus_watch_cb(GstBus *bus, GstMessage *message,
 gboolean
 nsv_decoder_task_start(NsvDecoderTask *self)
 {
-  NsvDecoderTaskPrivate *priv;
+  NsvDecoderTaskPrivate *priv = self->priv;
   GstElement *filesrc;
   GstElement *encoder_bin;
   GstElement *audioconvert;
   GstElement *audioresample;
   GstElement *capsfilter;
+  GstElement *volume = NULL;
+  GstElement *wavenc = NULL;
+  GstElement *filesink;
   GstPad *sink_pad;
   GstCaps *caps;
   GstInterpolationControlSource *interp_ctl_src;
   GstBus *bus;
-  GstElement *filesink;
-  GstElement *volume;
-  GstElement *wavenc;
   GstElement *decodebin;
   GValue interp_val =  {0};
 
-  priv = self->priv;
   gst_controller_init(NULL, NULL);
 
   if (!(priv->pipeline = gst_pipeline_new("decoder-pipeline")) ||
@@ -509,7 +490,7 @@ nsv_decoder_task_start(NsvDecoderTask *self)
 
   priv->gst_bus = gst_pipeline_get_bus(GST_PIPELINE(priv->pipeline));
   priv->gst_volume_controller =
-      gst_controller_new(G_OBJECT(volume), "volume", 0);
+      gst_controller_new(G_OBJECT(volume), "volume", NULL);
 
   interp_ctl_src = gst_interpolation_control_source_new();
   gst_interpolation_control_source_set_interpolation_mode(

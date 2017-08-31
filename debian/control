@@ -1,0 +1,25 @@
+Source: hildon-plugins-notify-sv
+Section: libs
+Priority: optional
+Maintainer: Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
+Build-Depends: debhelper (>= 5), cdbs, libtool, pkg-config, libglib2.0-dev, libgconf2-dev, libdbus-1-dev, profile-data-dev, mce-dev, libsndfile1-dev, libplayback-1-dev, pulseaudio-dev, libpulse-dev, libx11-dev
+Standards-Version: 3.8.0
+
+Package: hildon-plugins-notify-sv
+Depends: ${shlibs:Depends}
+Architecture: any
+Description: Sound and vibra notification plugin
+ This package contains the sound and vibra plugins for hildon desktop notification system.
+
+Package: hildon-plugins-notify-sv-dbg
+Depends: hildon-plugins-notify-sv (= ${binary:Version})
+Architecture: any
+Section: libdevel
+Description: Debug symbols for Sound and vibra notification plugin
+
+Package: hildon-plugins-notify-sv-dev
+Depends: hildon-plugins-notify-sv (= ${binary:Version})
+Architecture: any
+Section: devel
+Description: Development files for Sound and vibra notification plugin
+

@@ -4,10 +4,9 @@
 
 #include <stdio.h>
 
-#include "sp_timestamp.h"
-
 #include "nsv-private.h"
 #include "nsv-notification.h"
+#include "nsv-util.h"
 
 struct nsv_notification_manager
 {

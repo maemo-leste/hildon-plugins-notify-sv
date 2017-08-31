@@ -1,4 +1,6 @@
-bin_PROGRAMS = nsv-decoder-service
+nsv_decoder_service_PROGRAMS = nsv-decoder-service
+
+nsv_decoder_servicedir = $(prefix)/libexec
 
 nsv_decoder_service_CFLAGS = $(NSV_DECODER_SERVICE_CFLAGS)
 

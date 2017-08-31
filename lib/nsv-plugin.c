@@ -2,10 +2,9 @@
 
 #include <stdio.h>
 
-#include "sp_timestamp.h"
-
-#include "nsv-plugin.h"
 #include "nsv.h"
+#include "nsv-plugin.h"
+#include "nsv-util.h"
 
 void
 nsv_plugin_load()
