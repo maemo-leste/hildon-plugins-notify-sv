@@ -2,7 +2,9 @@ libhildon_plugins_notify_sv_la_LTLIBRARIES = libhildon-plugins-notify-sv.la
 
 libhildon_plugins_notify_sv_ladir = $(hildondesktoplibdir)
 
-INCLUDES = $(HILDON_PLUGINS_NOTIFY_SV_CFLAGS) -I$(srcdir)/../include
+INCLUDES = $(HILDON_PLUGINS_NOTIFY_SV_CFLAGS)	\
+			-I$(srcdir)/../include	\
+			-DSP_TIMESTAMP_CREATE=1
 
 BUILT_SOURCES =					\
 		nsv-profile-marshal.c		\
