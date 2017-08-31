@@ -49,7 +49,6 @@ PKG_CHECK_MODULES(HILDON_PLUGINS_NOTIFY_SV,
 			sndfile dnl
 			gio-2.0 dnl
 			libplayback-1 dnl
-			pulsecore dnl
 			libpulse dnl
 			libpulse-mainloop-glib dnl
 			x11])

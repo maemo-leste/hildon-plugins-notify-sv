@@ -287,15 +287,15 @@ _nsv_policy_mgr_pb_state_request_cb(pb_playback_t *pb,
 {
   pb_playback_req_completed(pb, ext_req);
 
-  if (class_policy[(int)data])
-    g_signal_emit(class_policy[(int)data], command_id, 0, req_state);
+  if (class_policy[(uintptr_t)data])
+    g_signal_emit(class_policy[(uintptr_t)data], command_id, 0, req_state);
 }
 
 static void
 _nsv_policy_mgr_pb_state_hint_cb(pb_playback_t *pb, const int allowed_state[],
                                  void *data)
 {
-  playback_allowed[(int)data] = allowed_state[PB_STATE_PLAY] != PB_STATE_NONE;
+  playback_allowed[(uintptr_t)data] = allowed_state[PB_STATE_PLAY] != PB_STATE_NONE;
 }
 
 gboolean

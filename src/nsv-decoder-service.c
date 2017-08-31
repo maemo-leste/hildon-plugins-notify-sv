@@ -284,8 +284,12 @@ main(int argc, char **argv)
   NsvDecoderService *decoder;
   GMainLoop *loop;
 
+#if !GLIB_CHECK_VERSION(2,32,0)
   g_thread_init(NULL);
-  g_type_init();
+#endif
+#if !GLIB_CHECK_VERSION(2,35,0)
+  g_type_init ();
+#endif
   gst_init(&argc, &argv);
   decoder = nsv_decoder_service_new();
   loop = g_main_loop_new(NULL, FALSE);

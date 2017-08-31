@@ -34,7 +34,7 @@ struct _NsvPulseContextPrivate
 {
   pa_glib_mainloop *pa_mainloop;
   pa_context *pa_context;
-  pa_ext_stream_restore2_info stream_restore;
+  pa_ext_stream_restore_info stream_restore;
   gboolean stream_restore_write_pending;
 };
 
@@ -131,13 +131,13 @@ nsv_pulse_context_class_init(NsvPulseContextClass *klass)
 }
 
 static void
-nsv_pulse_context_pa_ext_stream_restore2_write(
-    NsvPulseContext *self, const pa_ext_stream_restore2_info *info)
+nsv_pulse_context_pa_ext_stream_restore_write(
+    NsvPulseContext *self, const pa_ext_stream_restore_info *info)
 {
   NsvPulseContextPrivate *priv = self->priv;
   pa_operation *pa_op =
-    pa_ext_stream_restore2_write(priv->pa_context, PA_UPDATE_REPLACE,
-                                 &info, 1, TRUE, NULL, NULL);
+    pa_ext_stream_restore_write(priv->pa_context, PA_UPDATE_REPLACE,
+                                info, 1, TRUE, NULL, NULL);
 
   if (pa_op)
     pa_operation_unref(pa_op);
@@ -148,9 +148,6 @@ _nsv_pulse_context_pa_context_state_cb(pa_context *c, void *userdata)
 {
   NsvPulseContext *self = NSV_PULSE_CONTEXT(userdata);
   NsvPulseContextPrivate *priv = self->priv;
-  pa_context_state_t state;
-
-  state = pa_context_get_state(c);
 
   switch (pa_context_get_state(c))
   {
@@ -159,8 +156,8 @@ _nsv_pulse_context_pa_context_state_cb(pa_context *c, void *userdata)
       if (priv->stream_restore_write_pending)
       {
         priv->stream_restore_write_pending = FALSE;
-        nsv_pulse_context_pa_ext_stream_restore2_write(self,
-                                                       &priv->stream_restore);
+        nsv_pulse_context_pa_ext_stream_restore_write(self,
+                                                      &priv->stream_restore);
       }
 
       g_signal_emit(self, ready_id, 0);
@@ -299,12 +296,11 @@ nsv_pulse_context_set_rule_volume(NsvPulseContext *self, const char *rule,
   priv->stream_restore.volume = cvol;
   priv->stream_restore.device = NULL;
   priv->stream_restore.mute = FALSE;
-  priv->stream_restore.volume_is_absolute = TRUE;
 
   if (priv->pa_context &&
       pa_context_get_state(priv->pa_context) == PA_CONTEXT_READY)
   {
-    nsv_pulse_context_pa_ext_stream_restore2_write(self, &priv->stream_restore);
+    nsv_pulse_context_pa_ext_stream_restore_write(self, &priv->stream_restore);
   }
   else
     priv->stream_restore_write_pending = TRUE;

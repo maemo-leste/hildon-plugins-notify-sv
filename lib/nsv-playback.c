@@ -191,8 +191,8 @@ _nsv_playback_pa_set_volume(NsvPlayback *self, gint volume)
   pa_context *pa_context;
   NsvPlaybackPrivate *priv = self->priv;
   pa_operation *op;
-  pa_ext_stream_restore2_info info;
-  const pa_ext_stream_restore2_info *pinfo = &info;
+  pa_ext_stream_restore_info info;
+  const pa_ext_stream_restore_info *pinfo = &info;
   pa_cvolume cvol;
 
   pa_context = self->priv->pa_context;
@@ -213,10 +213,9 @@ _nsv_playback_pa_set_volume(NsvPlayback *self, gint volume)
     info.volume = cvol;
     info.device = 0;
     info.mute = FALSE;
-    info.volume_is_absolute = TRUE;
 
-    op = pa_ext_stream_restore2_write(priv->pa_context,PA_UPDATE_REPLACE,
-                                      &pinfo, 1, TRUE, NULL, NULL);
+    op = pa_ext_stream_restore_write(priv->pa_context,PA_UPDATE_REPLACE,
+                                     pinfo, 1, TRUE, NULL, NULL);
     if (op)
       pa_operation_unref(op);
 
