@@ -34,8 +34,8 @@ AC_SUBST(CFLAGS)
 PKG_CHECK_MODULES(NSV_DECODER_SERVICE,
 			[glib-2.0 dnl
 			dbus-glib-1 dnl
-			gstreamer-0.10 dnl
-			gstreamer-controller-0.10])
+			gstreamer-1.0 dnl
+			gstreamer-controller-1.0])
 
 AC_SUBST(NSV_DECODER_SERVICE_LIBS)
 AC_SUBST(NSV_DECODER_SERVICE_CFLAGS)

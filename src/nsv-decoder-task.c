@@ -1,7 +1,7 @@
 #include <glib-object.h>
 #include <glib/gstdio.h>
 #include <gst/gstelement.h>
-#include <gst/controller/gstcontroller.h>
+#include <gst/controller/controller.h>
 
 #include "nsv-decoder-task.h"
 
@@ -37,7 +37,6 @@ struct _NsvDecoderTaskPrivate
   gboolean decoding_started;
   GstElement *pipeline;
   GstBus *gst_bus;
-  GstController *gst_volume_controller;
 };
 
 G_DEFINE_TYPE(NsvDecoderTask, nsv_decoder_task, G_TYPE_OBJECT);
@@ -116,12 +115,6 @@ static void
 _nsv_decoder_task_gst_cleanup(NsvDecoderTask *self)
 {
   NsvDecoderTaskPrivate *priv = self->priv;
-
-  if (priv->gst_volume_controller)
-  {
-    gst_object_unref(priv->gst_volume_controller);
-    priv->gst_volume_controller = NULL;
-  }
 
   if (priv->pipeline)
   {
@@ -235,32 +228,38 @@ _nsv_decoder_task_emit_suceeded_cb(gpointer user_data)
   return FALSE;
 }
 
-static gboolean
-_nsv_decoder_task_gst_buffer_probe_cb(GstPad *pad, GstBuffer *buffer,
-                                      NsvDecoderTask *self)
+static GstPadProbeReturn
+_nsv_decoder_task_gst_buffer_probe_cb(GstPad *pad, GstPadProbeInfo *info,
+                                      gpointer user_data)
 {
+  NsvDecoderTask *self = (NsvDecoderTask *)user_data;
   NsvDecoderTaskPrivate *priv = self->priv;
+  GstBuffer *buffer;
 
-  if (priv->decoding_completed)
-    return TRUE;
+  if (!(GST_PAD_PROBE_INFO_TYPE(info) & GST_PAD_PROBE_TYPE_BUFFER) ||
+      priv->decoding_completed)
+  {
+    return GST_PAD_PROBE_OK;
+  }
 
-  priv->data_so_far += buffer->size;
+  buffer = gst_pad_probe_info_get_buffer(info);
+  priv->data_so_far += gst_buffer_get_size(buffer);
 
   if (priv->data_so_far < priv->cut_off_time_mul_96)
-    return TRUE;
+    return GST_PAD_PROBE_OK;
 
   priv->decoding_completed = TRUE;
   priv->emit_suceeded_timeout =
       g_idle_add(_nsv_decoder_task_emit_suceeded_cb, self);
 
-  return TRUE;
+  return GST_PAD_PROBE_OK;
 }
 
 static void
 _nsv_decoder_task_gst_new_decoded_pab_cb(GstElement *decodebin, GstPad *pad,
                                          gboolean last, gpointer data)
 {
-  GstCaps *caps = gst_pad_get_caps(pad);
+  GstCaps *caps = gst_pad_query_caps(pad, NULL);
 
   if (!gst_caps_is_empty(caps) && !gst_caps_is_any(caps))
   {
@@ -268,7 +267,7 @@ _nsv_decoder_task_gst_new_decoded_pab_cb(GstElement *decodebin, GstPad *pad,
 
     if (g_str_has_prefix(gst_structure_get_name(caps_s), "audio/x-raw"))
     {
-      GstPad *sink_pad = gst_element_get_pad(GST_ELEMENT(data), "sink");
+      GstPad *sink_pad = gst_element_get_static_pad(GST_ELEMENT(data), "sink");
 
       gst_pad_link(pad, sink_pad);
       gst_object_unref(sink_pad);
@@ -378,16 +377,16 @@ nsv_decoder_task_start(NsvDecoderTask *self)
   GstElement *filesink;
   GstPad *sink_pad;
   GstCaps *caps;
-  GstInterpolationControlSource *interp_ctl_src;
+  GstControlSource *cs;
+  GstTimedValueControlSource *tvcs;
   GstBus *bus;
   GstElement *decodebin;
-  GValue interp_val =  {0};
-
-  gst_controller_init(NULL, NULL);
+  GstClockTime start;
+  GstClockTime end;
 
   if (!(priv->pipeline = gst_pipeline_new("decoder-pipeline")) ||
       !(filesrc = gst_element_factory_make("filesrc", NULL)) ||
-      !(decodebin = gst_element_factory_make("decodebin2", NULL)))
+      !(decodebin = gst_element_factory_make("decodebin", NULL)))
   {
     if (priv->pipeline)
     {
@@ -467,7 +466,7 @@ nsv_decoder_task_start(NsvDecoderTask *self)
     return FALSE;
   }
 
-  sink_pad = gst_element_get_pad(audioconvert, "sink");
+  sink_pad = gst_element_get_static_pad(audioconvert, "sink");
   gst_element_add_pad(encoder_bin, gst_ghost_pad_new("sink", sink_pad));
   gst_object_unref(sink_pad);
 
@@ -489,37 +488,29 @@ nsv_decoder_task_start(NsvDecoderTask *self)
                         encoder_bin, NULL, 0);
 
   priv->gst_bus = gst_pipeline_get_bus(GST_PIPELINE(priv->pipeline));
-  priv->gst_volume_controller =
-      gst_controller_new(G_OBJECT(volume), "volume", NULL);
 
-  interp_ctl_src = gst_interpolation_control_source_new();
-  gst_interpolation_control_source_set_interpolation_mode(
-        interp_ctl_src, GST_INTERPOLATE_LINEAR);
-  gst_controller_set_control_source(
-        priv->gst_volume_controller,
-        "volume", GST_CONTROL_SOURCE(interp_ctl_src));
-  gst_object_unref(interp_ctl_src);
+  cs = gst_interpolation_control_source_new();
+  tvcs = (GstTimedValueControlSource *) cs;
 
-  g_value_init(&interp_val, G_TYPE_DOUBLE);
+  g_object_set (cs, "mode", GST_INTERPOLATION_MODE_LINEAR, NULL);
 
-  g_value_set_double(&interp_val, 1.0);
-  gst_interpolation_control_source_set(
-        interp_ctl_src,
-        1000000LL * (priv->cut_off_time - priv->fade_length_time), &interp_val);
+  start = 1000000LL * (priv->cut_off_time - priv->fade_length_time);
+  gst_timed_value_control_source_set(tvcs, start, 1.0f);
 
-  g_value_set_double(&interp_val, 0.0);
-  gst_interpolation_control_source_set(
-        interp_ctl_src, 1000000LL * priv->cut_off_time, &interp_val);
-  g_value_unset(&interp_val);
+  end = 1000000LL * priv->cut_off_time;
+  gst_timed_value_control_source_set(tvcs, end, 0.0f);
+
+  gst_direct_control_binding_new(GST_OBJECT_CAST(volume), "volume", cs);
 
   priv->cut_off_time_mul_96 = 96 * priv->cut_off_time;
 
   if (priv->cut_off_time_mul_96 > 0)
   {
-    sink_pad = gst_element_get_pad(filesink, "sink");
+    sink_pad = gst_element_get_static_pad(filesink, "sink");
 
-    gst_pad_add_buffer_probe(
-          sink_pad, (GCallback)_nsv_decoder_task_gst_buffer_probe_cb, self);
+    /* FIXME - shall we care for GST_PAD_PROBE_TYPE_BUFFER_LIST as well? */
+    gst_pad_add_probe(sink_pad, GST_PAD_PROBE_TYPE_BUFFER,
+                      _nsv_decoder_task_gst_buffer_probe_cb, self, NULL);
     gst_object_unref(sink_pad);
   }
 
