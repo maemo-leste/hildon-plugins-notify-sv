@@ -1,4 +1,4 @@
-AC_INIT([hildon-plugins-notify-sv], [0.50])
+AC_INIT([hildon-plugins-notify-sv], [0.60])
 AC_CANONICAL_SYSTEM
 
 AM_CONFIG_HEADER(config.h)

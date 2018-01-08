@@ -1,3 +1,9 @@
+hildon-plugins-notify-sv (0.60) unstable; urgency=low
+
+  * Port to gstreamer-1.0
+
+ -- Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>  Mon, 08 Jan 2018 20:49:33 +0200
+
 hildon-plugins-notify-sv (0.51) unstable; urgency=medium
 
   * enable git builds
