@@ -1,1 +1,2 @@
-usr/lib/hildon-desktop/libhildon-plugins-notify-sv.so usr/lib/libhildon-plugins-notify-sv.so
+#!/usr/bin/dh-exec
+usr/lib/${DEB_HOST_MULTIARCH}/hildon-desktop/libhildon-plugins-notify-sv.so usr/lib/${DEB_HOST_MULTIARCH}/libhildon-plugins-notify-sv.so
