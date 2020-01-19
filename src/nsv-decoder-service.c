@@ -13,8 +13,6 @@ static void nsv_decoder_service_decode();
 #define NSV_DECODER_SERVICE_TYPE (nsv_decoder_service_get_type ())
 #define NSV_DECODER_SERVICE(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
             NSV_DECODER_SERVICE_TYPE, NsvDecoderService))
-#define NSV_DECODER_SERVICE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), \
-            NSV_DECODER_SERVICE_TYPE, NsvDecoderServicePrivate))
 
 typedef struct _NsvDecoderService NsvDecoderService;
 typedef struct _NsvDecoderServiceClass NsvDecoderServiceClass;
@@ -40,7 +38,7 @@ struct _NsvDecoderServicePrivate
   guint exit_timeout_id;
 };
 
-G_DEFINE_TYPE(NsvDecoderService, nsv_decoder_service, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_CODE(NsvDecoderService, nsv_decoder_service, G_TYPE_OBJECT, G_ADD_PRIVATE(NsvDecoderService));
 
 static void nsv_decoder_service_start_next_task(NsvDecoderService *self);
 
@@ -82,7 +80,6 @@ static void
 nsv_decoder_service_class_init(NsvDecoderServiceClass *klass)
 {
   parent_class = g_type_class_peek_parent(klass);
-  g_type_class_add_private(klass, sizeof(NsvDecoderServicePrivate));
   G_OBJECT_CLASS(klass)->dispose = nsv_decoder_service_dispose;
 
   decoded_id =
@@ -113,7 +110,7 @@ exit_timeout_cb(gpointer user_data)
 static void
 nsv_decoder_service_init(NsvDecoderService *self)
 {
-  NsvDecoderServicePrivate *priv = NSV_DECODER_SERVICE_GET_PRIVATE(self);
+  NsvDecoderServicePrivate *priv = (NsvDecoderServicePrivate*)nsv_decoder_service_get_instance_private(self);
 
   self->priv = priv;
   g_queue_init(&priv->queue);
