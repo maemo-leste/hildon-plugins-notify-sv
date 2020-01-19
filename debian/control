@@ -8,12 +8,14 @@ Standards-Version: 3.8.0
 Package: hildon-plugins-notify-sv
 Depends: ${shlibs:Depends}
 Architecture: any
+Multi-Arch: same
 Description: Sound and vibra notification plugin
  This package contains the sound and vibra plugins for hildon desktop notification system.
 
 Package: hildon-plugins-notify-sv-dev
 Depends: hildon-plugins-notify-sv (= ${binary:Version})
 Architecture: any
+Multi-Arch: same
 Section: devel
 Description: Development files for Sound and vibra notification plugin
 
