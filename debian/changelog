@@ -1,6 +1,6 @@
 hildon-plugins-notify-sv (0.61) unstable; urgency=low
 
-  * Port to newer gtk2
+  * Port to newer gtk2, dh10
 
  -- Merlijn Wajer <merlijn@wizzup.org>  Sun, 19 Jan 2020 15:42:43 +0100
 
