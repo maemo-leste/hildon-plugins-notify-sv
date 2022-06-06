@@ -257,7 +257,7 @@ _nsv_decoder_task_gst_buffer_probe_cb(GstPad *pad, GstPadProbeInfo *info,
 
 static void
 _nsv_decoder_task_gst_new_decoded_pab_cb(GstElement *decodebin, GstPad *pad,
-                                         gboolean last, gpointer data)
+                                         gpointer data)
 {
   GstCaps *caps = gst_pad_query_caps(pad, NULL);
 
@@ -472,7 +472,7 @@ nsv_decoder_task_start(NsvDecoderTask *self)
 
   gst_bin_add(GST_BIN(priv->pipeline), encoder_bin);
 
-  caps = gst_caps_new_simple("audio/x-raw-int",
+  caps = gst_caps_new_simple("audio/x-raw",
                              "rate", 24, 48000,
                              "width", 24, 16,
                              "depth", 24, 16,
@@ -483,7 +483,7 @@ nsv_decoder_task_start(NsvDecoderTask *self)
   g_object_set(G_OBJECT(filesink), "location", priv->target_file, NULL);
   g_object_set(G_OBJECT(filesrc), "location", priv->source_file, NULL);
 
-  g_signal_connect_data(G_OBJECT(decodebin), "new-decoded-pad",
+  g_signal_connect_data(G_OBJECT(decodebin), "pad-added",
                         (GCallback)_nsv_decoder_task_gst_new_decoded_pab_cb,
                         encoder_bin, NULL, 0);
 
