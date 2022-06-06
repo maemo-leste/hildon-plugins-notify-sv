@@ -1,3 +1,9 @@
+hildon-plugins-notify-sv (0.62) unstable; urgency=low
+
+  * nsv-decoder-task: fix problems in gst 1.0 port
+
+ -- Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>  Mon, 06 Jun 2022 20:26:34 +0300
+
 hildon-plugins-notify-sv (0.61) unstable; urgency=low
 
   * Port to newer gtk2, dh10
