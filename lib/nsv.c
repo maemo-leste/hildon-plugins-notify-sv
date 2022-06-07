@@ -80,7 +80,7 @@ nsv_play(const char *category, const char *sound_file, int volume,
     {
       if (!decoded || !g_file_test(decoded, G_FILE_TEST_EXISTS))
       {
-        if (fallback_sound &&
+        if (fallback_sound && fallback_sound_file &&
             g_file_test(fallback_sound_file, G_FILE_TEST_EXISTS))
         {
           if (n->sound_file)
