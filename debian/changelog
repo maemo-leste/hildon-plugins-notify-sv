@@ -1,3 +1,9 @@
+hildon-plugins-notify-sv (0.63) unstable; urgency=low
+
+  * avoid passing NULL causing assert when fallback_sound_file dosent exist
+
+ -- Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>  Tue, 07 Jun 2022 07:14:52 +0300
+
 hildon-plugins-notify-sv (0.62) unstable; urgency=low
 
   * nsv-decoder-task: fix problems in gst 1.0 port
