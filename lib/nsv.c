@@ -128,8 +128,11 @@ out:
   profile_volume = nsv_profile_get_volume(nsv->profile, category);
   n->volume = profile_volume < 0 ? volume : profile_volume;
 
-  if (g_str_equal(category, NSV_CATEGORY_SYSTEM) || g_str_equal(category, NSV_CATEGORY_CRITICAL))
+  if (g_str_equal(category, NSV_CATEGORY_SYSTEM) ||
+      g_str_equal(category, NSV_CATEGORY_CRITICAL))
+  {
     n->volume = nsv_profile_get_system_volume(nsv->profile);
+  }
 
   if (g_str_equal(category, NSV_CATEGORY_CALENDAR))
     n->volume = nsv_profile_get_volume(nsv->profile, NSV_CATEGORY_RINGTONE);
