@@ -6,22 +6,85 @@
 #include "nsv-plugin.h"
 #include "nsv-util.h"
 
+GHashTable *categories = NULL;
+
 void
 nsv_plugin_load()
 {
+  char *category;
+
   nsv_initialize_with_x11();
+
+  categories = g_hash_table_new(g_str_hash, g_str_equal);
+
+  category = "System";
+  g_hash_table_insert(categories, "system-sound", category);
+
+  category = "Ringtone";
+  g_hash_table_insert(categories, "incoming-call", category);
+
+  category = "SMS";
+  g_hash_table_insert(categories, "sms-message", category);
+  g_hash_table_insert(categories, "sms-message-class-0", category);
+  g_hash_table_insert(categories, "voice-mail", category);
+
+  category = "Chat";
+  g_hash_table_insert(categories, "chat-message", category);
+  g_hash_table_insert(categories, "auth-request", category);
+  g_hash_table_insert(categories, "chat-invitation", category);
+
+  category = "Email";
+  g_hash_table_insert(categories, "email-message", category);
+
+  category = "Critical";
+  g_hash_table_insert(categories, "system-critical", category);
+
+  category = "Sound";
+  g_hash_table_insert(categories, "play-sound", category);
 }
 
 void
 nsv_plugin_unload()
 {
+  g_hash_table_destroy(categories);
   nsv_shutdown();
+}
+
+static const char *
+nsv_plugin_get_category(GHashTable *hints)
+{
+  const char *category;
+  const gchar *nc;
+  const GValue *val = (const GValue *)g_hash_table_lookup(hints, "category");
+
+  if (!G_VALUE_HOLDS_STRING(val) || !(nc = g_value_get_string(val)))
+    return NULL;
+
+  if (g_str_has_prefix(nc, "system.note."))
+    category = "Sound";
+  else if (g_str_equal(nc, "alarm-event"))
+  {
+    val = g_hash_table_lookup(hints, "alarm-type");
+
+    if (G_VALUE_HOLDS_STRING(val) && (nc = g_value_get_string(val)) &&
+        g_str_equal(nc, "clock"))
+    {
+      category = "Clock";
+    }
+    else
+      category = "Calendar";
+  }
+  else
+  {
+    category = g_hash_table_lookup(categories, nc);
+  }
+
+  return category;
 }
 
 gint
 nsv_plugin_play_event(GHashTable *hints, gchar *sender)
 {
-  const gchar *s;
   const char *category;
   gchar *sound_file;
   const GValue *val;
@@ -32,46 +95,9 @@ nsv_plugin_play_event(GHashTable *hints, gchar *sender)
 
   _sp_timestamp("Notification received.");
 
-  val = (const GValue *)g_hash_table_lookup(hints, "category");
+  category = nsv_plugin_get_category(hints);
 
-  if (!G_VALUE_HOLDS_STRING(val) || !(s = g_value_get_string(val)))
-    goto err_cat;
-
-
-  if (g_str_equal(s, "system-sound"))
-    category = "System";
-  else if (g_str_equal(s, "incoming-call"))
-    category = "Ringtone";
-  else if (g_str_equal(s, "sms-message") ||
-           g_str_equal(s, "sms-message-class-0") ||
-           g_str_equal(s, "voice-mail"))
-  {
-    category = "SMS";
-  }
-  else if (g_str_equal(s, "chat-message") || g_str_equal(s, "auth-request") ||
-           g_str_equal(s, "chat-invitation"))
-  {
-    category = "Chat";
-  }
-  else if (g_str_equal(s, "email-message"))
-    category = "Email";
-  else if (g_str_equal(s, "alarm-event"))
-  {
-    val = g_hash_table_lookup(hints, "alarm-type");
-
-    if (G_VALUE_HOLDS_STRING(val) && (s = g_value_get_string(val)) &&
-        g_str_equal(s, "clock"))
-    {
-      category = "Clock";
-    }
-    else
-      category = "Calendar";
-  }
-  else if (g_str_equal(s, "system-critical"))
-    category = "Critical";
-  else if (g_str_equal(s, "play-sound") || g_str_has_prefix(s, "system.note."))
-    category = "Sound";
-  else
+  if (category == NULL)
     goto err_cat;
 
   val = (const GValue *)g_hash_table_lookup(hints, "sound-file");
