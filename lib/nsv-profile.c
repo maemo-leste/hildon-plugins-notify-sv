@@ -45,74 +45,171 @@ static guint tone_changed_id;
 static guint volume_changed_id;
 static guint system_volume_changed_id;
 
-struct nsv_profile_tone
+typedef enum
 {
-  const char *key;
+  PROFILE_VALUE_TYPE_NONE,
+  PROFILE_VALUE_TYPE_PROFILE,
+  PROFILE_VALUE_TYPE_GCONF
+} NsvProfileValueType;
+
+struct NsvCategory
+{
+  const char *id;
   const char *profile_key;
-  int type;
-  const char *gc_dir;
+  NsvProfileValueType type;
+  const char *data;
 };
 
-const struct nsv_profile_tone nsv_profile_tone_keys[] =
+const struct NsvCategory category_tone[] =
 {
-  {NSV_PROFILE_RINGTONE, PROFILEKEY_RINGING_ALERT_TONE, 1, NULL},
-  {NSV_PROFILE_CALENDAR, "/apps/calendar/calendar-alarm-tone", 2, "/apps/calendar"},
-  {NSV_PROFILE_CLOCK, "/apps/clock/alarm-tone", 2, "/apps/clock"},
-  {NSV_PROFILE_SMS, PROFILEKEY_SMS_ALERT_TONE, 1, NULL},
-  {NSV_PROFILE_EMAIL, PROFILEKEY_EMAIL_ALERT_TONE, 1, NULL},
-  {NSV_PROFILE_CHAT, PROFILEKEY_IM_ALERT_TONE, 1, NULL}
+  {
+    NSV_PROFILE_RINGTONE,
+    PROFILEKEY_RINGING_ALERT_TONE,
+    PROFILE_VALUE_TYPE_PROFILE,
+    NULL
+  },
+  {
+    NSV_PROFILE_CALENDAR,
+    "/apps/calendar/calendar-alarm-tone",
+    PROFILE_VALUE_TYPE_GCONF,
+    "/apps/calendar"
+  },
+  {
+    NSV_PROFILE_CLOCK,
+    "/apps/clock/alarm-tone",
+    PROFILE_VALUE_TYPE_GCONF,
+    "/apps/clock"},
+  {
+    NSV_PROFILE_SMS,
+    PROFILEKEY_SMS_ALERT_TONE,
+    PROFILE_VALUE_TYPE_PROFILE,
+    NULL
+  },
+  {
+    NSV_PROFILE_EMAIL,
+    PROFILEKEY_EMAIL_ALERT_TONE,
+    PROFILE_VALUE_TYPE_PROFILE,
+    NULL
+  },
+  {
+    NSV_PROFILE_CHAT,
+    PROFILEKEY_IM_ALERT_TONE,
+    PROFILE_VALUE_TYPE_PROFILE,
+    NULL
+  }
 };
 
-struct nsv_profile_volume
+const struct NsvCategory category_volume[] =
 {
-  const char *name;
-  const char *profile_key;
-  int type;
-  const char *dir;
+  {
+    NSV_PROFILE_RINGTONE,
+    PROFILEKEY_RINGING_ALERT_VOLUME,
+    PROFILE_VALUE_TYPE_PROFILE,
+    NULL
+  },
+  {
+    NSV_PROFILE_CALENDAR,
+    NULL,
+    PROFILE_VALUE_TYPE_NONE,
+    NULL
+  },
+  {
+    NSV_PROFILE_CLOCK,
+    NULL,
+    PROFILE_VALUE_TYPE_NONE,
+    NULL},
+  {
+    NSV_PROFILE_SMS,
+    PROFILEKEY_SMS_ALERT_VOLUME,
+    PROFILE_VALUE_TYPE_PROFILE,
+    NULL
+  },
+  {
+    NSV_PROFILE_EMAIL,
+    PROFILEKEY_EMAIL_ALERT_VOLUME,
+    PROFILE_VALUE_TYPE_PROFILE,
+    NULL
+  },
+  {
+    NSV_PROFILE_CHAT,
+    PROFILEKEY_IM_ALERT_VOLUME,
+    PROFILE_VALUE_TYPE_PROFILE,
+    NULL
+  }
 };
 
-const struct nsv_profile_volume nsv_profile_volume_keys[] =
-{
-  {NSV_PROFILE_RINGTONE, PROFILEKEY_RINGING_ALERT_VOLUME, 1, NULL},
-  {NSV_PROFILE_CALENDAR, NULL, 0, NULL},
-  {NSV_PROFILE_CLOCK, NULL, 0, NULL},
-  {NSV_PROFILE_SMS, PROFILEKEY_SMS_ALERT_VOLUME, 1, NULL},
-  {NSV_PROFILE_EMAIL, PROFILEKEY_EMAIL_ALERT_VOLUME, 1, NULL},
-  {NSV_PROFILE_CHAT, PROFILEKEY_IM_ALERT_VOLUME, 1, NULL}
-};
-
-struct nsv_profile_vibra
+struct NsvVibra
 {
   const char *name;
   const char *pattern;
 };
 
-const struct nsv_profile_vibra nsv_profile_vibra_values[] =
+const struct NsvVibra category_vibra[] =
 {
-  {NSV_PROFILE_RINGTONE, "PatternIncomingCall"},
-  {NSV_PROFILE_CALENDAR, "PatternIncomingCall"},
-  {NSV_PROFILE_CLOCK, "PatternIncomingCall"},
-  {NSV_PROFILE_SMS, "PatternIncomingMessage"},
-  {NSV_PROFILE_EMAIL, "PatternChatAndEmail"},
-  {NSV_PROFILE_CHAT, "PatternChatAndEmail"}
+  {
+    NSV_PROFILE_RINGTONE,
+    "PatternIncomingCall"
+  },
+  {
+    NSV_PROFILE_CALENDAR,
+    "PatternIncomingCall"
+  },
+  {
+    NSV_PROFILE_CLOCK,
+    "PatternIncomingCall"
+  },
+  {
+    NSV_PROFILE_SMS,
+    "PatternIncomingMessage"
+  },
+  {
+    NSV_PROFILE_EMAIL,
+    "PatternChatAndEmail"
+  },
+  {
+    NSV_PROFILE_CHAT,
+    "PatternChatAndEmail"
+  }
 };
 
-struct nsv_profile_tone_fallback
+const struct NsvCategory category_tone_fallback[] =
 {
-  const char *name;
-  const char *profile_key;
-  int type;
-  const char *sound_file;
-};
-
-const struct nsv_profile_tone_fallback nsv_profile_tone_fallbacks[] =
-{
-  {NSV_PROFILE_RINGTONE, PROFILEKEY_RINGING_ALERT_TONE, 1, "fallback"},
-  {NSV_PROFILE_CALENDAR, NULL, 2, "/usr/share/sounds/ui-calendar_alarm_default.aac"},
-  {NSV_PROFILE_CLOCK, NULL, 2, "/usr/share/sounds/ui-clock_alarm_default.aac"},
-  {NSV_PROFILE_SMS, PROFILEKEY_SMS_ALERT_TONE, 1, "fallback"},
-  {NSV_PROFILE_EMAIL, PROFILEKEY_EMAIL_ALERT_TONE, 1, "fallback"},
-  {NSV_PROFILE_CHAT , PROFILEKEY_IM_ALERT_TONE, 1, "fallback"}
+  {
+    NSV_PROFILE_RINGTONE,
+    PROFILEKEY_RINGING_ALERT_TONE,
+    PROFILE_VALUE_TYPE_PROFILE,
+    "fallback"
+  },
+  {
+    NSV_PROFILE_CALENDAR,
+    NULL,
+    PROFILE_VALUE_TYPE_GCONF,
+    "/usr/share/sounds/ui-calendar_alarm_default.aac"
+  },
+  {
+    NSV_PROFILE_CLOCK,
+    NULL,
+    PROFILE_VALUE_TYPE_GCONF,
+    "/usr/share/sounds/ui-clock_alarm_default.aac"
+  },
+  {
+    NSV_PROFILE_SMS,
+    PROFILEKEY_SMS_ALERT_TONE,
+    PROFILE_VALUE_TYPE_PROFILE,
+    "fallback"
+  },
+  {
+    NSV_PROFILE_EMAIL,
+    PROFILEKEY_EMAIL_ALERT_TONE,
+    PROFILE_VALUE_TYPE_PROFILE,
+    "fallback"
+  },
+  {
+    NSV_PROFILE_CHAT,
+    PROFILEKEY_IM_ALERT_TONE,
+    PROFILE_VALUE_TYPE_PROFILE,
+    "fallback"
+  }
 };
 
 static void
@@ -128,19 +225,19 @@ _nsv_profile_emit_volume_changed(NsvProfile *self, const char *key, int volume)
 
   NsvProfilePrivate *priv = self->priv;
 
-  for (i = 0; i < G_N_ELEMENTS(nsv_profile_volume_keys); i++)
+  for (i = 0; i < G_N_ELEMENTS(category_volume); i++)
   {
-    const struct nsv_profile_volume *v = &nsv_profile_volume_keys[i];
+    const struct NsvCategory *nc = &category_volume[i];
 
-    if (!v->profile_key || !g_str_equal(v->profile_key, key))
-        continue;
+    if (!nc->profile_key || !g_str_equal(nc->profile_key, key))
+      continue;
 
-    if (GPOINTER_TO_INT(g_hash_table_lookup(priv->volumes, v->name)) == volume)
+    if (GPOINTER_TO_INT(g_hash_table_lookup(priv->volumes, nc->id)) == volume)
       break;
 
-    g_hash_table_replace(priv->volumes, g_strdup(v->name),
+    g_hash_table_replace(priv->volumes, g_strdup(nc->id),
                          GINT_TO_POINTER(volume));
-    g_signal_emit(self, volume_changed_id, 0, v->name, volume);
+    g_signal_emit(self, volume_changed_id, 0, nc->id, volume);
   }
 }
 
@@ -151,21 +248,21 @@ _nsv_profile_emit_tone_changed(NsvProfile *self, const char *key,
   NsvProfilePrivate *priv = self->priv;
   int i;
 
-  for (i = 0; i < G_N_ELEMENTS(nsv_profile_tone_keys); i++)
+  for (i = 0; i < G_N_ELEMENTS(category_tone); i++)
   {
-    const struct nsv_profile_tone *t = &nsv_profile_tone_keys[i];
+    const struct NsvCategory *nc = &category_tone[i];
     const gchar *tone;
 
-    if (!t->profile_key || !g_str_equal(t->profile_key, key))
+    if (!nc->profile_key || !g_str_equal(nc->profile_key, key))
       continue;
 
-    tone = (const gchar *)g_hash_table_lookup(priv->tones, t->key);
+    tone = g_hash_table_lookup(priv->tones, nc->id);
 
     if (g_str_equal(tone, val))
       break;
 
-    g_hash_table_replace(priv->tones, g_strdup(t->key), g_strdup(val));
-    g_signal_emit(self, tone_changed_id, 0, t->key, tone, val);
+    g_hash_table_replace(priv->tones, g_strdup(nc->id), g_strdup(val));
+    g_signal_emit(self, tone_changed_id, 0, nc->id, tone, val);
   }
 }
 
@@ -202,10 +299,10 @@ _profile_track_value_fn_data_cb(const char *profile, const char *key,
     int i;
     int v = profile_parse_int(val);
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_tone_keys); i++)
+    for (i = 0; i < G_N_ELEMENTS(category_tone); i++)
       _nsv_profile_emit_tone_changed(self, key, val);
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_volume_keys); i++)
+    for (i = 0; i < G_N_ELEMENTS(category_volume); i++)
       _nsv_profile_emit_volume_changed(self, key, v);
   }
 }
@@ -305,7 +402,7 @@ _nsv_volume_key_changed_cb(GConfClient *client, guint cnxn_id,
     const char *key = gconf_entry_get_key(entry);
     int volume = gconf_value_get_int(value);
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_volume_keys); i++)
+    for (i = 0; i < G_N_ELEMENTS(category_volume); i++)
       _nsv_profile_emit_volume_changed(self, key, volume);
   }
 }
@@ -325,7 +422,7 @@ _nsv_tone_key_changed_cb(GConfClient *client, guint cnxn_id, GConfEntry *entry,
     const char *key = gconf_entry_get_key(entry);
     const char *tone = gconf_value_get_string(value);
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_tone_keys); i++)
+    for (i = 0; i < G_N_ELEMENTS(category_tone); i++)
       _nsv_profile_emit_tone_changed(self, key, tone);
   }
 }
@@ -373,83 +470,79 @@ nsv_profile_init(NsvProfile *self)
     else
       priv->sound_level = 80;
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_tone_keys); i++)
+    for (i = 0; i < G_N_ELEMENTS(category_tone); i++)
     {
-      const struct nsv_profile_tone *tone = &nsv_profile_tone_keys[i];
+      const struct NsvCategory *nc = &category_tone[i];
 
-      if (tone->type == 1)
+      if (nc->type == PROFILE_VALUE_TYPE_PROFILE)
       {
-        char *s = profile_get_value(0, tone->profile_key);
+        char *s = profile_get_value(0, nc->profile_key);
 
-        g_hash_table_replace(priv->tones, g_strdup(tone->key), g_strdup(s));
+        g_hash_table_replace(priv->tones, g_strdup(nc->id), g_strdup(s));
         free(s);
       }
-      else if (tone->type == 2)
+      else if (nc->type == PROFILE_VALUE_TYPE_GCONF)
       {
-        char *s;
+        gchar *s;
 
-        gconf_client_add_dir(priv->gc, tone->gc_dir, GCONF_CLIENT_PRELOAD_NONE,
+        gconf_client_add_dir(priv->gc, nc->data, GCONF_CLIENT_PRELOAD_NONE,
                              NULL);
-        gconf_client_notify_add(priv->gc, tone->profile_key,
+        gconf_client_notify_add(priv->gc, nc->profile_key,
                                 _nsv_tone_key_changed_cb, self, NULL, NULL);
-        s = gconf_client_get_string(priv->gc, tone->profile_key, NULL);
+        s = gconf_client_get_string(priv->gc, nc->profile_key, NULL);
 
         if (s)
-        {
-          /* FIXME - no need to g_strdup(s) and then g_free(s) */
-          g_hash_table_replace(priv->tones, g_strdup(tone->key), g_strdup(s));
-          g_free(s);
-        }
+          g_hash_table_replace(priv->tones, g_strdup(nc->id), s);
       }
     }
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_tone_fallbacks); i++)
+    for (i = 0; i < G_N_ELEMENTS(category_tone_fallback); i++)
     {
-      const struct nsv_profile_tone_fallback *fallback =
-          &nsv_profile_tone_fallbacks[i];
+      const struct NsvCategory *nc = &category_tone_fallback[i];
 
-      if (fallback->type == 1)
+      if (nc->type == PROFILE_VALUE_TYPE_PROFILE)
       {
-        char *s = profile_get_value("fallback", fallback->profile_key);
+        char *s = profile_get_value("fallback", nc->profile_key);
 
-        g_hash_table_replace(priv->fallbacks, g_strdup(fallback->name),
+        g_hash_table_replace(priv->fallbacks, g_strdup(nc->id),
                              g_strdup(s));
         free(s);
       }
-      else if (fallback->type == 2)
+      else if (nc->type == PROFILE_VALUE_TYPE_GCONF)
       {
-        g_hash_table_replace(priv->fallbacks, g_strdup(fallback->name),
-                             g_strdup(fallback->sound_file));
+        g_hash_table_replace(priv->fallbacks, g_strdup(nc->id),
+                             g_strdup(nc->data));
       }
     }
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_volume_keys); i++)
+    for (i = 0; i < G_N_ELEMENTS(category_volume); i++)
     {
-      const struct nsv_profile_volume *volume = &nsv_profile_volume_keys[i];
+      const struct NsvCategory *nc = &category_volume[i];
 
-      if (volume->type == 1)
+      if (nc->type == PROFILE_VALUE_TYPE_PROFILE)
       {
-        int v = profile_get_value_as_int(NULL, volume->profile_key);
+        int v = profile_get_value_as_int(NULL, nc->profile_key);
 
-        g_hash_table_replace(priv->volumes, g_strdup(volume->name),
+        g_hash_table_replace(priv->volumes, g_strdup(nc->id),
                              GINT_TO_POINTER(v));
       }
-      else if (volume->type == 2)
+      else if (nc->type == PROFILE_VALUE_TYPE_GCONF)
       {
-        gconf_client_add_dir(priv->gc, volume->dir, GCONF_CLIENT_PRELOAD_NONE,
+        int tmp;
+
+        gconf_client_add_dir(priv->gc, nc->data, GCONF_CLIENT_PRELOAD_NONE,
                              NULL);
-        gconf_client_notify_add(priv->gc, volume->profile_key,
+        gconf_client_notify_add(priv->gc, nc->profile_key,
                                 _nsv_volume_key_changed_cb, self, NULL, NULL);
-        g_hash_table_replace(
-              priv->tones, g_strdup(volume->name),
-              GINT_TO_POINTER(gconf_client_get_int(priv->gc,
-                                                   volume->profile_key, NULL)));
+        tmp = gconf_client_get_int(priv->gc, nc->profile_key, NULL);
+        g_hash_table_replace(priv->tones, g_strdup(nc->id),
+                             GINT_TO_POINTER(tmp));
       }
     }
 
-    for (i = 0; i < G_N_ELEMENTS(nsv_profile_vibra_values); i++)
+    for (i = 0; i < G_N_ELEMENTS(category_vibra); i++)
     {
-      const struct nsv_profile_vibra *vibra = &nsv_profile_vibra_values[i];
+      const struct NsvVibra *vibra = &category_vibra[i];
 
       g_hash_table_replace(priv->vibras, g_strdup(vibra->name),
                            g_strdup(vibra->pattern));
@@ -480,19 +573,19 @@ nsv_profile_tones_get_all(NsvProfile *self)
 const char *
 nsv_profile_get_vibra_pattern(NsvProfile *self, const char *profile)
 {
-  return (const char *)g_hash_table_lookup(self->priv->vibras, profile);
+  return g_hash_table_lookup(self->priv->vibras, profile);
 }
 
 const char *
 nsv_profile_get_fallback(NsvProfile *self, const char *profile)
 {
-  return (const char *)g_hash_table_lookup(self->priv->fallbacks, profile);
+  return g_hash_table_lookup(self->priv->fallbacks, profile);
 }
 
 const char *
 nsv_profile_get_tone(NsvProfile *self, const char *profile)
 {
-  return (const char *)g_hash_table_lookup(self->priv->tones, profile);
+  return g_hash_table_lookup(self->priv->tones, profile);
 }
 
 int
@@ -501,9 +594,7 @@ nsv_profile_get_volume(NsvProfile *self, const char *profile)
   gpointer v;
 
   if (g_hash_table_lookup_extended(self->priv->volumes, profile, NULL, &v))
-  {
     return GPOINTER_TO_INT(v);
-  }
 
   return -1;
 }
@@ -531,8 +622,8 @@ GList *nsv_profile_get_volume_keys(NsvProfile *self)
   GList *l = NULL;
   int i;
 
-  for (i = 0; i < G_N_ELEMENTS(nsv_profile_volume_keys); i++)
-    l = g_list_append(l, (gpointer)nsv_profile_volume_keys[i].name);
+  for (i = 0; i < G_N_ELEMENTS(category_volume); i++)
+    l = g_list_append(l, (gpointer)category_volume[i].id);
 
   return l;
 }
@@ -542,8 +633,8 @@ GList *nsv_profile_get_tone_keys(NsvProfile *self)
   GList *l = NULL;
   int i;
 
-  for (i = 0; i < G_N_ELEMENTS(nsv_profile_tone_keys); i++)
-    l = g_list_append(l, (gpointer)nsv_profile_tone_keys[i].key);
+  for (i = 0; i < G_N_ELEMENTS(category_tone); i++)
+    l = g_list_append(l, (gpointer)category_tone[i].id);
 
   return l;
 }
@@ -553,13 +644,13 @@ nsv_profile_set_tone(NsvProfile *self, const char *profile, char *val)
 {
   int i;
 
-  for (i = 0; i < G_N_ELEMENTS(nsv_profile_tone_keys); i++)
+  for (i = 0; i < G_N_ELEMENTS(category_tone); i++)
   {
-    const struct nsv_profile_tone *tone = &nsv_profile_tone_keys[i];
+    const struct NsvCategory *nc = &category_tone[i];
 
-    if (g_str_equal(tone->key, profile))
+    if (g_str_equal(nc->id, profile))
     {
-      profile_set_value(NULL, tone->profile_key, val);
+      profile_set_value(NULL, nc->profile_key, val);
       break;
     }
   }
