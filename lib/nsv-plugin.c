@@ -39,15 +39,24 @@ nsv_plugin_load()
 
   category = NSV_CATEGORY_EMAIL;
   g_hash_table_insert(categories, "email-message", category);
-  g_hash_table_insert(categories, "email", category);
   g_hash_table_insert(categories, "email.arrived", category);
-  g_hash_table_insert(categories, "email.bounced", category);
 
   category = NSV_CATEGORY_CRITICAL;
   g_hash_table_insert(categories, "system-critical", category);
 
   category = NSV_CATEGORY_SOUND;
   g_hash_table_insert(categories, "play-sound", category);
+
+  g_hash_table_insert(categories, "email", category);
+  g_hash_table_insert(categories, "email.bounced", category);
+
+  g_hash_table_insert(categories, "presence", category);
+  g_hash_table_insert(categories, "presence.offline", category);
+  g_hash_table_insert(categories, "presence.online", category);
+
+  g_hash_table_insert(categories, "transfer", category);
+  g_hash_table_insert(categories, "transfer.complete", category);
+  g_hash_table_insert(categories, "transfer.error", category);
 }
 
 void
@@ -82,9 +91,7 @@ nsv_plugin_get_category(GHashTable *hints)
       category = NSV_CATEGORY_CALENDAR;
   }
   else
-  {
     category = g_hash_table_lookup(categories, nc);
-  }
 
   return category;
 }
@@ -112,7 +119,29 @@ nsv_plugin_play_event(GHashTable *hints, gchar *sender)
   if (val)
     sound_file = g_value_dup_string(val);
   else
-    sound_file = NULL;
+  {
+    const GValue *val = (const GValue *)g_hash_table_lookup(hints, "category");
+    const gchar *nc = g_value_get_string(val);
+
+    if (g_str_equal(nc, "presence.online"))
+      sound_file = g_strdup("/usr/share/sounds/presence-online.wav");
+    else if (g_str_equal(nc, "presence.offline"))
+      sound_file = g_strdup("usr/share/sounds/presence-offline.wav");
+    else if(g_str_equal(nc, "email") || g_str_equal(nc, "presence") ||
+            g_str_equal(nc, "transfer"))
+    {
+      sound_file = g_strdup("usr/share/sounds/ui-information_note.wav");
+    }
+    else if (g_str_equal(nc, "email.bounced") ||
+             g_str_equal(nc, "transfer.error"))
+    {
+      sound_file = g_strdup("usr/share/sounds/ui-connection_lost.wav");
+    }
+    else if (g_str_equal(nc, "transfer.complete"))
+      sound_file = g_strdup("usr/share/sounds/ui-operation_ready.wav");
+    else
+      sound_file = NULL;
+  }
 
   val = (const GValue *)g_hash_table_lookup(hints, "volume");
 
