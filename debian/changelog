@@ -1,3 +1,9 @@
+hildon-plugins-notify-sv (0.64) unstable; urgency=low
+
+  * support most of XDG desktop notification specification categories
+
+ -- Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>  Sat, 22 Apr 2023 20:57:27 +0300
+
 hildon-plugins-notify-sv (0.63) unstable; urgency=low
 
   * avoid passing NULL causing assert when fallback_sound_file dosent exist
