@@ -174,5 +174,5 @@ static struct notification_impl calendar =
 void
 register_alarm_calendar()
 {
-  nsv_notification_register("Calendar", &calendar);
+  nsv_notification_register(NSV_CATEGORY_CALENDAR, &calendar);
 }

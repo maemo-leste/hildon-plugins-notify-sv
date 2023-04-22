@@ -238,5 +238,5 @@ static struct notification_impl alarm_clock =
 
 void register_alarm_clock()
 {
-  nsv_notification_register("Clock", &alarm_clock);
+  nsv_notification_register(NSV_CATEGORY_CLOCK, &alarm_clock);
 }

@@ -8,6 +8,7 @@
 
 #include "nsv-profile.h"
 #include "nsv-profile-marshal.h"
+#include "nsv-notification.h"
 
 #define NSV_PROFILE_TYPE (nsv_profile_get_type ())
 #define NSV_PROFILE(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
@@ -63,36 +64,36 @@ struct NsvCategory
 const struct NsvCategory category_tone[] =
 {
   {
-    NSV_PROFILE_RINGTONE,
+    NSV_CATEGORY_RINGTONE,
     PROFILEKEY_RINGING_ALERT_TONE,
     PROFILE_VALUE_TYPE_PROFILE,
     NULL
   },
   {
-    NSV_PROFILE_CALENDAR,
+    NSV_CATEGORY_CALENDAR,
     "/apps/calendar/calendar-alarm-tone",
     PROFILE_VALUE_TYPE_GCONF,
     "/apps/calendar"
   },
   {
-    NSV_PROFILE_CLOCK,
+    NSV_CATEGORY_CLOCK,
     "/apps/clock/alarm-tone",
     PROFILE_VALUE_TYPE_GCONF,
     "/apps/clock"},
   {
-    NSV_PROFILE_SMS,
+    NSV_CATEGORY_SMS,
     PROFILEKEY_SMS_ALERT_TONE,
     PROFILE_VALUE_TYPE_PROFILE,
     NULL
   },
   {
-    NSV_PROFILE_EMAIL,
+    NSV_CATEGORY_EMAIL,
     PROFILEKEY_EMAIL_ALERT_TONE,
     PROFILE_VALUE_TYPE_PROFILE,
     NULL
   },
   {
-    NSV_PROFILE_CHAT,
+    NSV_CATEGORY_CHAT,
     PROFILEKEY_IM_ALERT_TONE,
     PROFILE_VALUE_TYPE_PROFILE,
     NULL
@@ -102,36 +103,36 @@ const struct NsvCategory category_tone[] =
 const struct NsvCategory category_volume[] =
 {
   {
-    NSV_PROFILE_RINGTONE,
+    NSV_CATEGORY_RINGTONE,
     PROFILEKEY_RINGING_ALERT_VOLUME,
     PROFILE_VALUE_TYPE_PROFILE,
     NULL
   },
   {
-    NSV_PROFILE_CALENDAR,
+    NSV_CATEGORY_CALENDAR,
     NULL,
     PROFILE_VALUE_TYPE_NONE,
     NULL
   },
   {
-    NSV_PROFILE_CLOCK,
+    NSV_CATEGORY_CLOCK,
     NULL,
     PROFILE_VALUE_TYPE_NONE,
     NULL},
   {
-    NSV_PROFILE_SMS,
+    NSV_CATEGORY_SMS,
     PROFILEKEY_SMS_ALERT_VOLUME,
     PROFILE_VALUE_TYPE_PROFILE,
     NULL
   },
   {
-    NSV_PROFILE_EMAIL,
+    NSV_CATEGORY_EMAIL,
     PROFILEKEY_EMAIL_ALERT_VOLUME,
     PROFILE_VALUE_TYPE_PROFILE,
     NULL
   },
   {
-    NSV_PROFILE_CHAT,
+    NSV_CATEGORY_CHAT,
     PROFILEKEY_IM_ALERT_VOLUME,
     PROFILE_VALUE_TYPE_PROFILE,
     NULL
@@ -147,27 +148,27 @@ struct NsvVibra
 const struct NsvVibra category_vibra[] =
 {
   {
-    NSV_PROFILE_RINGTONE,
+    NSV_CATEGORY_RINGTONE,
     "PatternIncomingCall"
   },
   {
-    NSV_PROFILE_CALENDAR,
+    NSV_CATEGORY_CALENDAR,
     "PatternIncomingCall"
   },
   {
-    NSV_PROFILE_CLOCK,
+    NSV_CATEGORY_CLOCK,
     "PatternIncomingCall"
   },
   {
-    NSV_PROFILE_SMS,
+    NSV_CATEGORY_SMS,
     "PatternIncomingMessage"
   },
   {
-    NSV_PROFILE_EMAIL,
+    NSV_CATEGORY_EMAIL,
     "PatternChatAndEmail"
   },
   {
-    NSV_PROFILE_CHAT,
+    NSV_CATEGORY_CHAT,
     "PatternChatAndEmail"
   }
 };
@@ -175,37 +176,37 @@ const struct NsvVibra category_vibra[] =
 const struct NsvCategory category_tone_fallback[] =
 {
   {
-    NSV_PROFILE_RINGTONE,
+    NSV_CATEGORY_RINGTONE,
     PROFILEKEY_RINGING_ALERT_TONE,
     PROFILE_VALUE_TYPE_PROFILE,
     "fallback"
   },
   {
-    NSV_PROFILE_CALENDAR,
+    NSV_CATEGORY_CALENDAR,
     NULL,
     PROFILE_VALUE_TYPE_GCONF,
     "/usr/share/sounds/ui-calendar_alarm_default.aac"
   },
   {
-    NSV_PROFILE_CLOCK,
+    NSV_CATEGORY_CLOCK,
     NULL,
     PROFILE_VALUE_TYPE_GCONF,
     "/usr/share/sounds/ui-clock_alarm_default.aac"
   },
   {
-    NSV_PROFILE_SMS,
+    NSV_CATEGORY_SMS,
     PROFILEKEY_SMS_ALERT_TONE,
     PROFILE_VALUE_TYPE_PROFILE,
     "fallback"
   },
   {
-    NSV_PROFILE_EMAIL,
+    NSV_CATEGORY_EMAIL,
     PROFILEKEY_EMAIL_ALERT_TONE,
     PROFILE_VALUE_TYPE_PROFILE,
     "fallback"
   },
   {
-    NSV_PROFILE_CHAT,
+    NSV_CATEGORY_CHAT,
     PROFILEKEY_IM_ALERT_TONE,
     PROFILE_VALUE_TYPE_PROFILE,
     "fallback"

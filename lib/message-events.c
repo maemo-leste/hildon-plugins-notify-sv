@@ -180,8 +180,8 @@ static struct notification_impl message_events =
 void
 register_message_events()
 {
-  nsv_notification_register("SMS", &message_events);
-  nsv_notification_register("Email", &message_events);
-  nsv_notification_register("Chat", &message_events);
-  nsv_notification_register("Sound", &message_events);
+  nsv_notification_register(NSV_CATEGORY_SMS, &message_events);
+  nsv_notification_register(NSV_CATEGORY_EMAIL, &message_events);
+  nsv_notification_register(NSV_CATEGORY_CHAT, &message_events);
+  nsv_notification_register(NSV_CATEGORY_SOUND, &message_events);
 }

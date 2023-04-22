@@ -498,7 +498,7 @@ _nsv_notification_policy_command_cb(NsvPolicy *policy,
     }
   }
   else if (req_state == PB_STATE_PLAY && mgr->current_notification &&
-           !n->play_granted && g_str_equal(n->type, "Ringtone") )
+           !n->play_granted && g_str_equal(n->type, NSV_CATEGORY_RINGTONE))
   {
     impl = get_implementation(n);
 

@@ -5,13 +5,6 @@
 
 typedef struct _NsvProfile NsvProfile;
 
-#define NSV_PROFILE_RINGTONE "Ringtone"
-#define NSV_PROFILE_CALENDAR "Calendar"
-#define NSV_PROFILE_CLOCK "Clock"
-#define NSV_PROFILE_SMS "SMS"
-#define NSV_PROFILE_EMAIL "Email"
-#define NSV_PROFILE_CHAT "Chat"
-
 NsvProfile *nsv_profile_get_instance();
 
 GList *nsv_profile_tones_get_all(NsvProfile *self);

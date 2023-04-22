@@ -5,6 +5,7 @@
 #include "nsv.h"
 #include "nsv-plugin.h"
 #include "nsv-util.h"
+#include "nsv-notification.h"
 
 GHashTable *categories = NULL;
 
@@ -17,18 +18,18 @@ nsv_plugin_load()
 
   categories = g_hash_table_new(g_str_hash, g_str_equal);
 
-  category = "System";
+  category = NSV_CATEGORY_SYSTEM;
   g_hash_table_insert(categories, "system-sound", category);
 
-  category = "Ringtone";
+  category = NSV_CATEGORY_RINGTONE;
   g_hash_table_insert(categories, "incoming-call", category);
 
-  category = "SMS";
+  category = NSV_CATEGORY_SMS;
   g_hash_table_insert(categories, "sms-message", category);
   g_hash_table_insert(categories, "sms-message-class-0", category);
   g_hash_table_insert(categories, "voice-mail", category);
 
-  category = "Chat";
+  category = NSV_CATEGORY_CHAT;
   g_hash_table_insert(categories, "chat-message", category);
   g_hash_table_insert(categories, "auth-request", category);
   g_hash_table_insert(categories, "chat-invitation", category);
@@ -36,16 +37,16 @@ nsv_plugin_load()
   g_hash_table_insert(categories, "im.received", category);
   g_hash_table_insert(categories, "im.error", category);
 
-  category = "Email";
+  category = NSV_CATEGORY_EMAIL;
   g_hash_table_insert(categories, "email-message", category);
   g_hash_table_insert(categories, "email", category);
   g_hash_table_insert(categories, "email.arrived", category);
   g_hash_table_insert(categories, "email.bounced", category);
 
-  category = "Critical";
+  category = NSV_CATEGORY_CRITICAL;
   g_hash_table_insert(categories, "system-critical", category);
 
-  category = "Sound";
+  category = NSV_CATEGORY_SOUND;
   g_hash_table_insert(categories, "play-sound", category);
 }
 
@@ -67,7 +68,7 @@ nsv_plugin_get_category(GHashTable *hints)
     return NULL;
 
   if (g_str_has_prefix(nc, "system.note."))
-    category = "Sound";
+    category = NSV_CATEGORY_SOUND;
   else if (g_str_equal(nc, "alarm-event"))
   {
     val = g_hash_table_lookup(hints, "alarm-type");
@@ -75,10 +76,10 @@ nsv_plugin_get_category(GHashTable *hints)
     if (G_VALUE_HOLDS_STRING(val) && (nc = g_value_get_string(val)) &&
         g_str_equal(nc, "clock"))
     {
-      category = "Clock";
+      category = NSV_CATEGORY_CLOCK;
     }
     else
-      category = "Calendar";
+      category = NSV_CATEGORY_CALENDAR;
   }
   else
   {

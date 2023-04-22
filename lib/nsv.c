@@ -128,11 +128,11 @@ out:
   profile_volume = nsv_profile_get_volume(nsv->profile, category);
   n->volume = profile_volume < 0 ? volume : profile_volume;
 
-  if (g_str_equal(category, "System") || g_str_equal(category, "Critical"))
+  if (g_str_equal(category, NSV_CATEGORY_SYSTEM) || g_str_equal(category, NSV_CATEGORY_CRITICAL))
     n->volume = nsv_profile_get_system_volume(nsv->profile);
 
-  if (g_str_equal(category, "Calendar"))
-    n->volume = nsv_profile_get_volume(nsv->profile, "Ringtone");
+  if (g_str_equal(category, NSV_CATEGORY_CALENDAR))
+    n->volume = nsv_profile_get_volume(nsv->profile, NSV_CATEGORY_RINGTONE);
 
   return nsv_notification_start(n);
 }
@@ -389,9 +389,9 @@ _nsv_handle_x11(GIOChannel *source, GIOCondition condition, gpointer data)
           {
             if (nsv_notification_has_events())
             {
-              nsv_notification_finish_by_category("SMS");
-              nsv_notification_finish_by_category("Chat");
-              nsv_notification_finish_by_category("Email");
+              nsv_notification_finish_by_category(NSV_CATEGORY_SMS);
+              nsv_notification_finish_by_category(NSV_CATEGORY_CHAT);
+              nsv_notification_finish_by_category(NSV_CATEGORY_EMAIL);
             }
           }
         }
@@ -476,29 +476,29 @@ nsv_sv_play_event(void *plugin, unsigned int event, const char *sound_file,
 {
   const char *category;
 
-  switch ( event )
+  switch (event)
   {
     case RINGTONE_EVENT:
-      category = "Ringtone";
+      category = NSV_CATEGORY_RINGTONE;
       break;
     case CALENDAR_EVENT:
-      category = "Calendar";
+      category = NSV_CATEGORY_CALENDAR;
       break;
     case CLOCK_EVENT:
-      category = "Clock";
+      category = NSV_CATEGORY_CLOCK;
       break;
     case CHAT_EVENT:
     case MESSAGE_EVENT:
-      category = "Chat";
+      category = NSV_CATEGORY_CHAT;
       break;
     case SMS_EVENT:
-      category = "SMS";
+      category = NSV_CATEGORY_SMS;
       break;
     case EMAIL_EVENT:
-      category = "Email";
+      category = NSV_CATEGORY_EMAIL;
       break;
     case SOUND_EVENT:
-      category = "Sound";
+      category = NSV_CATEGORY_SOUND;
       break;
     default:
       return -1;

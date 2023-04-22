@@ -46,7 +46,7 @@ _ringtone_playback_error_cb(NsvPlayback *self, nsv_notification *n)
 static void
 _ringtone_playback_started_cb(NsvPlayback *self, nsv_notification *n)
 {
-  _sp_timestamp("playing: Ringtone");
+  _sp_timestamp("playing: " NSV_CATEGORY_RINGTONE);
 
   if (n->vibra_pattern && n->vibra_enabled)
     nsv_vibra_start(n->vibra_pattern);
@@ -131,8 +131,8 @@ static struct notification_impl ringtone =
   ringtone_shutdown,
   ringtone_play,
   ringtone_stop,
-  "Ringtone",
-  "Ringtone",
+  NSV_CATEGORY_RINGTONE,
+  NSV_CATEGORY_RINGTONE,
   100,
   2
 }; // weak
@@ -140,5 +140,5 @@ static struct notification_impl ringtone =
 void
 register_ringtone()
 {
-  nsv_notification_register("Ringtone", &ringtone);
+  nsv_notification_register(NSV_CATEGORY_RINGTONE, &ringtone);
 }

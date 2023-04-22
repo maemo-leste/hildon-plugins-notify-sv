@@ -218,18 +218,17 @@ nsv_policy_stop_permission(NsvPolicy *self)
   if (policy && policy != self)
     return FALSE;
 
-    if (pb_states[policy_class])
-    {
-      class_policy[policy_class] = self;
-      priv->pb_req = pb_playback_req_state(pb,
-                                           PB_STATE_STOP,
-                                           _nsv_policy_pb_stop_state_reply_cb,
-                                           self);
-    }
-    else
-      g_signal_emit(self, stop_reply_id, 0, PB_STATE_STOP);
+  if (pb_states[policy_class])
+  {
+    class_policy[policy_class] = self;
+    priv->pb_req = pb_playback_req_state(pb, PB_STATE_STOP,
+                                         _nsv_policy_pb_stop_state_reply_cb,
+                                         self);
+  }
+  else
+    g_signal_emit(self, stop_reply_id, 0, PB_STATE_STOP);
 
-    return TRUE;
+  return TRUE;
 }
 
 static void
@@ -344,10 +343,11 @@ nsv_policy_mgr_shutdown()
   {
     pb_playback_t *pb = pb_playback[i];
 
-    if (pb);
+    if (pb)
     {
       pb_playback_destroy(pb);
       free(pb);
+      pb_playback[i] = 0;
     }
   }
 

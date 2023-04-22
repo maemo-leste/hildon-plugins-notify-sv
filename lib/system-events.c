@@ -109,8 +109,8 @@ static struct notification_impl system_events =
   &system_shutdown,
   &system_play,
   &system_stop,
-  "System",
-  "System",
+  NSV_CATEGORY_SYSTEM,
+  NSV_CATEGORY_SYSTEM,
   1,
   5
 };
@@ -199,8 +199,8 @@ static struct notification_impl critical_events =
   &system_shutdown,
   &system_play_critical,
   &system_stop_critical,
-  "Critical",
-  "System",
+  NSV_CATEGORY_CRITICAL,
+  NSV_CATEGORY_SYSTEM,
   1,
   5
 };
@@ -208,6 +208,6 @@ static struct notification_impl critical_events =
 void
 register_system_events()
 {
-  nsv_notification_register("System", &system_events);
-  nsv_notification_register("Critical", &critical_events);
+  nsv_notification_register(NSV_CATEGORY_SYSTEM, &system_events);
+  nsv_notification_register(NSV_CATEGORY_CRITICAL, &critical_events);
 }

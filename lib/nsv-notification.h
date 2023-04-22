@@ -3,6 +3,16 @@
 
 #include <glib.h>
 
+#define NSV_CATEGORY_RINGTONE "Ringtone"
+#define NSV_CATEGORY_CALENDAR "Calendar"
+#define NSV_CATEGORY_CLOCK "Clock"
+#define NSV_CATEGORY_SMS "SMS"
+#define NSV_CATEGORY_EMAIL "Email"
+#define NSV_CATEGORY_CHAT "Chat"
+#define NSV_CATEGORY_SYSTEM "System"
+#define NSV_CATEGORY_SOUND "Sound"
+#define NSV_CATEGORY_CRITICAL "Critical"
+
 typedef struct nsv_notification nsv_notification;
 
 struct notification_impl
