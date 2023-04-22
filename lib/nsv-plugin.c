@@ -32,9 +32,15 @@ nsv_plugin_load()
   g_hash_table_insert(categories, "chat-message", category);
   g_hash_table_insert(categories, "auth-request", category);
   g_hash_table_insert(categories, "chat-invitation", category);
+  g_hash_table_insert(categories, "im", category);
+  g_hash_table_insert(categories, "im.received", category);
+  g_hash_table_insert(categories, "im.error", category);
 
   category = "Email";
   g_hash_table_insert(categories, "email-message", category);
+  g_hash_table_insert(categories, "email", category);
+  g_hash_table_insert(categories, "email.arrived", category);
+  g_hash_table_insert(categories, "email.bounced", category);
 
   category = "Critical";
   g_hash_table_insert(categories, "system-critical", category);
