@@ -244,7 +244,7 @@ _nsv_profile_emit_volume_changed(NsvProfile *self, const char *key, int volume)
 
 static void
 _nsv_profile_emit_tone_changed(NsvProfile *self, const char *key,
-                               const char *val)
+                               const char *new_tone)
 {
   NsvProfilePrivate *priv = self->priv;
   int i;
@@ -252,18 +252,20 @@ _nsv_profile_emit_tone_changed(NsvProfile *self, const char *key,
   for (i = 0; i < G_N_ELEMENTS(category_tone); i++)
   {
     const struct NsvCategory *nc = &category_tone[i];
-    const gchar *tone;
+    gchar *old_tone;
 
     if (!nc->profile_key || !g_str_equal(nc->profile_key, key))
       continue;
 
-    tone = g_hash_table_lookup(priv->tones, nc->id);
+    old_tone = g_hash_table_lookup(priv->tones, nc->id);
 
-    if (g_str_equal(tone, val))
+    if (!g_strcmp0(old_tone, new_tone))
       break;
 
-    g_hash_table_replace(priv->tones, g_strdup(nc->id), g_strdup(val));
-    g_signal_emit(self, tone_changed_id, 0, nc->id, tone, val);
+    old_tone = g_strdup(old_tone);
+    g_hash_table_replace(priv->tones, g_strdup(nc->id), g_strdup(new_tone));
+    g_signal_emit(self, tone_changed_id, 0, nc->id, old_tone, new_tone);
+    g_free(old_tone);
   }
 }
 

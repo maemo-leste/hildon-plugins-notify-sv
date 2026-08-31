@@ -190,33 +190,33 @@ nsv_is_valid_tone(NsvProfile *self, const char *tone)
 }
 
 static void
-_nsv_profile_tone_changed_cb(NsvProfile *self, gchar *category, gchar *tone,
-                             char *file)
+_nsv_profile_tone_changed_cb(NsvProfile *self, const gchar *category,
+                             const gchar *old_tone, const gchar *new_tone)
 {
   gchar *decoded;
 
   if (!nsv->decoder)
     return;
 
-  decoded = nsv_decoder_get_decoded_filename(nsv->decoder, file);
+  decoded = nsv_decoder_get_decoded_filename(nsv->decoder, new_tone);
 
   if (decoded)
   {
     if (!nsv_util_valid_sound_file(decoded))
-      nsv_decoder_decode(nsv->decoder, category, file);
+      nsv_decoder_decode(nsv->decoder, category, new_tone);
 
-    if (!nsv_is_valid_tone(self, tone) )
-      nsv_unlink_decoded(nsv, tone);
+    if (!nsv_is_valid_tone(self, old_tone) )
+      nsv_unlink_decoded(nsv, old_tone);
 
     g_free(decoded);
   }
-  else if (file)
+  else if (new_tone)
   {
-    if (!nsv_is_valid_tone(self, tone))
-      nsv_unlink_decoded(nsv, tone);
+    if (!nsv_is_valid_tone(self, old_tone))
+      nsv_unlink_decoded(nsv, old_tone);
 
-    if (!nsv_util_valid_rootfs_sound_file(file))
-      nsv_decoder_decode(nsv->decoder, category, file);
+    if (!nsv_util_valid_rootfs_sound_file(new_tone))
+      nsv_decoder_decode(nsv->decoder, category, new_tone);
   }
 }
 
