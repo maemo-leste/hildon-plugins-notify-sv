@@ -1,3 +1,10 @@
+hildon-plugins-notify-sv (0.66) unstable; urgency=low
+
+  * play notification sounds at the level the profile asks for
+  * publish that level for the system sounds that carry none of their own
+
+ -- Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>  Thu, 05 Nov 2026 10:19:10 +0200
+
 hildon-plugins-notify-sv (0.65) unstable; urgency=low
 
   * fix UAF in _nsv_profile_emit_tone_changed
