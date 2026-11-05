@@ -14,6 +14,12 @@
 #define NSV_PROFILE(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
             NSV_PROFILE_TYPE, NsvProfile))
 
+/* The volumes the control panel system sound levels mean, off being zero. The
+ * panel stores 0, 1 and 2, and anything above 1 is the louder one. */
+#define SYSTEM_SOUND_VOLUME_OFF 0
+#define SYSTEM_SOUND_VOLUME_LEVEL_1 50
+#define SYSTEM_SOUND_VOLUME_LEVEL_2 80
+
 typedef struct _NsvProfileClass NsvProfileClass;
 typedef struct _NsvProfilePrivate NsvProfilePrivate;
 
@@ -269,6 +275,28 @@ _nsv_profile_emit_tone_changed(NsvProfile *self, const char *key,
   }
 }
 
+/* Both the startup read and the change notification come through here so the
+ * two cannot drift apart. The panel stores 0, 1 and 2, and a value outside
+ * that range is read the way the comparisons used to read it. */
+static int
+system_sound_level_to_volume(int level)
+{
+  if (level > 2)
+    level = 2;
+  else if (level < 0)
+    level = 0;
+
+  switch (level)
+  {
+    case 1:
+      return SYSTEM_SOUND_VOLUME_LEVEL_1;
+    case 2:
+      return SYSTEM_SOUND_VOLUME_LEVEL_2;
+    default:
+      return SYSTEM_SOUND_VOLUME_OFF;
+  }
+}
+
 static void
 _profile_track_value_fn_data_cb(const char *profile, const char *key,
                                 const char *val, const char *type,
@@ -284,15 +312,7 @@ _profile_track_value_fn_data_cb(const char *profile, const char *key,
     int sys_snd_lvl = profile_parse_int(val);
     int old_snd_lvl = priv->sound_level;
 
-    if (sys_snd_lvl <= 1)
-    {
-      if (sys_snd_lvl == 1)
-        priv->sound_level = 40;
-      else
-        priv->sound_level = 0;
-    }
-    else
-      priv->sound_level = 70;
+    priv->sound_level = system_sound_level_to_volume(sys_snd_lvl);
 
     if (priv->sound_level != old_snd_lvl)
       g_signal_emit(self, system_volume_changed_id, 0, priv->sound_level);
@@ -463,15 +483,7 @@ nsv_profile_init(NsvProfile *self)
     system_sound_level =
         profile_get_value_as_int(NULL, PROFILEKEY_SYSTEM_SOUND_LEVEL);
 
-    if (system_sound_level <= 1)
-    {
-      if (system_sound_level == 1)
-        priv->sound_level = 50;
-      else
-        priv->sound_level = 0;
-    }
-    else
-      priv->sound_level = 80;
+    priv->sound_level = system_sound_level_to_volume(system_sound_level);
 
     for (i = 0; i < G_N_ELEMENTS(category_tone); i++)
     {

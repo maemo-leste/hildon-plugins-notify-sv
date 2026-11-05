@@ -18,6 +18,10 @@
 #include "message-events.h"
 #include "system-events.h"
 
+/* The class of sounds the control panel level governs, and the name the
+ * streams that have no level of their own are filed under. */
+#define NSV_SYSTEM_SOUND_ROLE "x-maemo-system-sound"
+
 struct nsv
 {
   NsvDecoder *decoder;
@@ -220,30 +224,16 @@ _nsv_profile_tone_changed_cb(NsvProfile *self, const gchar *category,
   }
 }
 
-static void
-nsv_set_profile_pulse_context_rule_volume(NsvPulseContext *self, int volume)
-{
-  if (self)
-  {
-    nsv_pulse_context_set_rule_volume(nsv->pulse_context,
-                                      "x-maemo-system-sound", volume);
-  }
-}
-
+/* The level a system sound plays at comes from the profile, so a change to
+ * it has to reach the sound that is already playing, and the sounds that carry
+ * no level of their own have to be told it too. */
 static void
 _nsv_profile_system_volume_changed_cb(NsvProfile *self, int volume)
 {
-  nsv_set_profile_pulse_context_rule_volume(nsv->pulse_context, volume);
-}
+  nsv_notification_volume_changed(volume);
 
-static void
-_nsv_pulse_context_ready_cb(NsvPulseContext *self)
-{
-  if (nsv->profile)
-  {
-    nsv_set_profile_pulse_context_rule_volume(
-          self, nsv_profile_get_system_volume(nsv->profile));
-  }
+  nsv_pulse_context_set_media_role_volume(nsv->pulse_context,
+                                          NSV_SYSTEM_SOUND_ROLE, volume);
 }
 
 static gboolean
@@ -311,6 +301,7 @@ gboolean
 nsv_initialize()
 {
   const char *target_path = "/home/user/.local/share/sounds";
+  int level;
 
   if (nsv)
     return TRUE;
@@ -327,8 +318,12 @@ nsv_initialize()
                    G_CALLBACK(_nsv_profile_system_volume_changed_cb), NULL);
 
   nsv->pulse_context = nsv_pulse_context_get_instance();
-  g_signal_connect(G_OBJECT(nsv->pulse_context), "ready",
-                   G_CALLBACK(_nsv_pulse_context_ready_cb), NULL);
+
+  /* The profile answers before the server does at boot, and the setter waits
+   * for the server rather than losing the number. */
+  level = nsv_profile_get_system_volume(nsv->profile);
+  nsv_pulse_context_set_media_role_volume(nsv->pulse_context,
+                                          NSV_SYSTEM_SOUND_ROLE, level);
 
   nsv_notification_init();
   register_ringtone();

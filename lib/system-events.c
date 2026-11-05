@@ -103,6 +103,20 @@ system_stop(nsv_notification *n)
   return TRUE;
 }
 
+static void
+system_volume_changed(nsv_notification *n, int volume)
+{
+  struct system_event_private *priv;
+
+  g_assert(n != NULL);
+  g_assert(n->private != NULL);
+
+  priv = (struct system_event_private *)n->private;
+
+  if (priv->playback)
+    g_object_set(G_OBJECT(priv->playback), "volume", volume, NULL);
+}
+
 static struct notification_impl system_events =
 {
   &system_initialize,
@@ -112,7 +126,8 @@ static struct notification_impl system_events =
   NSV_CATEGORY_SYSTEM,
   NSV_CATEGORY_SYSTEM,
   1,
-  5
+  5,
+  &system_volume_changed
 };
 
 static gboolean
@@ -202,7 +217,8 @@ static struct notification_impl critical_events =
   NSV_CATEGORY_CRITICAL,
   NSV_CATEGORY_SYSTEM,
   1,
-  5
+  5,
+  &system_volume_changed
 };
 
 void

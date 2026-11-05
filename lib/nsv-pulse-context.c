@@ -1,7 +1,6 @@
 #include <glib-object.h>
 #include <pulse/pulseaudio.h>
 #include <pulse/glib-mainloop.h>
-#include <pulse/ext-stream-restore.h>
 
 #include <string.h>
 
@@ -34,8 +33,10 @@ struct _NsvPulseContextPrivate
 {
   pa_glib_mainloop *pa_mainloop;
   pa_context *pa_context;
-  pa_ext_stream_restore_info stream_restore;
-  gboolean stream_restore_write_pending;
+  gchar *media_role;
+  gint media_role_volume;
+  gboolean media_role_pending;
+  pa_stream *media_role_stream;
 };
 
 G_DEFINE_TYPE(NsvPulseContext, nsv_pulse_context, G_TYPE_OBJECT);
@@ -131,16 +132,73 @@ nsv_pulse_context_class_init(NsvPulseContextClass *klass)
 }
 
 static void
-nsv_pulse_context_pa_ext_stream_restore_write(
-    NsvPulseContext *self, const pa_ext_stream_restore_info *info)
+nsv_pulse_context_media_role_stream_dispose(NsvPulseContext *self)
 {
   NsvPulseContextPrivate *priv = self->priv;
-  pa_operation *pa_op =
-    pa_ext_stream_restore_write(priv->pa_context, PA_UPDATE_REPLACE,
-                                info, 1, TRUE, NULL, NULL);
 
-  if (pa_op)
-    pa_operation_unref(pa_op);
+  if (priv->media_role_stream)
+  {
+    pa_stream_disconnect(priv->media_role_stream);
+    pa_stream_unref(priv->media_role_stream);
+    priv->media_role_stream = NULL;
+  }
+}
+
+static gboolean
+nsv_pulse_context_media_role_stream_dispose_later(gpointer user_data)
+{
+  nsv_pulse_context_media_role_stream_dispose(NSV_PULSE_CONTEXT(user_data));
+
+  return G_SOURCE_REMOVE;
+}
+
+/* The level a class of sounds plays at has to live somewhere the sounds that
+ * carry no level of their own can find it, and on this stack that place is the
+ * volume WirePlumber keeps for a role. It is put there by a stream that has the
+ * role and the volume and nothing else, connected corked so it never becomes
+ * audible, and dropped again once the server has taken the number. */
+static void
+nsv_pulse_context_publish_media_role_volume(NsvPulseContext *self)
+{
+  NsvPulseContextPrivate *priv = self->priv;
+  pa_proplist *proplist;
+  pa_sample_spec spec;
+  pa_cvolume cvol;
+
+  if (priv->media_role == NULL ||
+      priv->pa_context == NULL ||
+      pa_context_get_state(priv->pa_context) != PA_CONTEXT_READY)
+    return;
+
+  nsv_pulse_context_media_role_stream_dispose(self);
+
+  pa_cvolume_set(&cvol, 1, ((double)priv->media_role_volume / 100.0 *
+                            PA_VOLUME_NORM));
+
+  spec.format = PA_SAMPLE_S16LE;
+  spec.rate = 44100;
+  spec.channels = 2;
+
+  proplist = pa_proplist_new();
+  pa_proplist_sets(proplist, PA_PROP_MEDIA_ROLE, priv->media_role);
+  pa_proplist_sets(proplist, PA_PROP_MEDIA_NAME, priv->media_role);
+
+  priv->media_role_stream = pa_stream_new_with_proplist(priv->pa_context,
+                                                 priv->media_role,
+                                                 &spec, NULL, proplist);
+  pa_proplist_free(proplist);
+
+  if (priv->media_role_stream == NULL)
+    return;
+
+  if (pa_stream_connect_playback(priv->media_role_stream, NULL, NULL,
+                                 PA_STREAM_START_CORKED, &cvol, NULL) < 0)
+  {
+    nsv_pulse_context_media_role_stream_dispose(self);
+    return;
+  }
+
+  g_timeout_add(500, nsv_pulse_context_media_role_stream_dispose_later, self);
 }
 
 static void
@@ -153,11 +211,10 @@ _nsv_pulse_context_pa_context_state_cb(pa_context *c, void *userdata)
   {
     case PA_CONTEXT_READY:
     {
-      if (priv->stream_restore_write_pending)
+      if (priv->media_role_pending)
       {
-        priv->stream_restore_write_pending = FALSE;
-        nsv_pulse_context_pa_ext_stream_restore_write(self,
-                                                      &priv->stream_restore);
+        priv->media_role_pending = FALSE;
+        nsv_pulse_context_publish_media_role_volume(self);
       }
 
       g_signal_emit(self, ready_id, 0);
@@ -276,34 +333,35 @@ nsv_pulse_context_is_ready(NsvPulseContext *self)
   return FALSE;
 }
 
+/* The level belongs to the class of sounds, not to the sound that happens to
+ * be playing, so it is stored under the class name and reaches the sounds that
+ * carry no level of their own. Like the write it replaces, it waits for the
+ * server rather than being lost when the profile answers first. */
 void
-nsv_pulse_context_set_rule_volume(NsvPulseContext *self, const char *rule,
-                                  int volume)
+nsv_pulse_context_set_media_role_volume(NsvPulseContext *self,
+                                        const char *media_role, int volume)
 {
-  NsvPulseContextPrivate *priv = self->priv;
-  pa_cvolume cvol;
-  pa_volume_t v;
+  NsvPulseContextPrivate *priv;
+
+  if (self == NULL || media_role == NULL)
+    return;
+
+  priv = self->priv;
 
   if (volume < 0)
     volume = 0;
+  else if (volume > 100)
+    volume = 100;
 
-  v = ((double)volume / 100.0 * 65536.0);
-
-  pa_cvolume_set(&cvol, 1, v);
-  priv->stream_restore.name = rule;
-  priv->stream_restore.channel_map.channels = 1;
-  priv->stream_restore.channel_map.map[0] = 0;
-  priv->stream_restore.volume = cvol;
-  priv->stream_restore.device = NULL;
-  priv->stream_restore.mute = FALSE;
+  g_free(priv->media_role);
+  priv->media_role = g_strdup(media_role);
+  priv->media_role_volume = volume;
 
   if (priv->pa_context &&
       pa_context_get_state(priv->pa_context) == PA_CONTEXT_READY)
-  {
-    nsv_pulse_context_pa_ext_stream_restore_write(self, &priv->stream_restore);
-  }
+    nsv_pulse_context_publish_media_role_volume(self);
   else
-    priv->stream_restore_write_pending = TRUE;
+    priv->media_role_pending = TRUE;
 }
 
 pa_context *

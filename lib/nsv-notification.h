@@ -25,6 +25,10 @@ struct notification_impl
   const char *type;
   int priority;
   int flags;
+  /* Called when the level a running sound plays at has changed. The
+   * implementation owns the playback object, so it is the only one that
+   * can put the new level on it. */
+  void (*volume_changed)(struct nsv_notification *, int volume);
 };
 
 gboolean nsv_notification_init();
@@ -32,6 +36,10 @@ void nsv_notification_shutdown();
 
 struct nsv_notification *nsv_notification_new(const char *category);
 void nsv_notification_finish(struct nsv_notification *n);
+
+/* Re-applies the profile level to the sound that is playing, if its
+ * category follows that level. */
+void nsv_notification_volume_changed(int volume);
 void nsv_notification_finish_by_sender(const char *sender);
 void nsv_notification_finish_by_category(const char *category);
 void nsv_notification_error(struct nsv_notification *n);

@@ -2,7 +2,6 @@
 #include <libplayback/playback.h>
 #include <pulse/glib-mainloop.h>
 #include <pulse/pulseaudio.h>
-#include <pulse/ext-stream-restore.h>
 #include <sndfile.h>
 
 #include <sys/types.h>
@@ -185,44 +184,37 @@ nsv_playback_finalize(GObject *object)
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
+/* The level a sound plays at is the profile's, resolved by the caller into
+ * priv->volume, so it belongs on the stream that plays it. */
 static gboolean
 _nsv_playback_pa_set_volume(NsvPlayback *self, gint volume)
 {
-  pa_context *pa_context;
   NsvPlaybackPrivate *priv = self->priv;
-  pa_operation *op;
-  pa_ext_stream_restore_info info;
-  const pa_ext_stream_restore_info *pinfo = &info;
   pa_cvolume cvol;
+  pa_volume_t v;
+  uint32_t index;
+  pa_operation *op;
 
-  pa_context = self->priv->pa_context;
+  if (priv->pa_stream == NULL || priv->pa_context == NULL)
+    return FALSE;
 
-  if (pa_context && pa_context_get_state(pa_context) == PA_CONTEXT_READY)
-  {
-    pa_volume_t v;
+  index = pa_stream_get_index(priv->pa_stream);
+  if (index == PA_INVALID_INDEX)
+    return FALSE;
 
-    if (volume < 0)
-      volume = 0;
+  if (volume < 0)
+    volume = 0;
 
-    v = ((double)volume / 100.0 * 65536.0);
-    pa_cvolume_set(&cvol, 1, v);
+  v = ((double)volume / 100.0 * 65536.0);
+  pa_cvolume_set(&cvol, 1, v);
 
-    info.name = "x-maemo-hildon-notify";
-    info.channel_map.channels = 1;
-    info.channel_map.map[0] = 0;
-    info.volume = cvol;
-    info.device = 0;
-    info.mute = FALSE;
+  op = pa_context_set_sink_input_volume(priv->pa_context, index, &cvol,
+                                        NULL, NULL);
+  if (op == NULL)
+    return FALSE;
 
-    op = pa_ext_stream_restore_write(priv->pa_context,PA_UPDATE_REPLACE,
-                                     pinfo, 1, TRUE, NULL, NULL);
-    if (op)
-      pa_operation_unref(op);
-
-    return TRUE;
-  }
-
-  return FALSE;
+  pa_operation_unref(op);
+  return TRUE;
 }
 
 static void
@@ -477,6 +469,11 @@ _nsv_playback_stream_state_cb(pa_stream *p, void *userdata)
   else if (stream_state == PA_STREAM_READY)
   {
     priv->stream_index = pa_stream_get_index(priv->pa_stream);
+
+    /* The server has the stream by now, so this is the first moment the
+     * level can be put on it; before it there is no index to address. */
+    if (priv->volume_set)
+      _nsv_playback_pa_set_volume(self, priv->volume);
   }
 }
 
@@ -656,11 +653,9 @@ _nsv_playback_play_real(NsvPlayback *self)
 
   proplist = pa_proplist_new();
 
-  if (priv->volume_set)
-  {
-    pa_proplist_sets(proplist, "module-stream-restore.id",
-                     "x-maemo-hildon-notify");
-  }
+  /* These sounds play at the level the profile asked for rather than at a
+   * fraction of whatever the output is currently set to. */
+  pa_proplist_sets(proplist, "x-maemo.volume.absolute", "1");
 
   if (priv->event_id)
     pa_proplist_sets(proplist, "event.id",  priv->event_id);

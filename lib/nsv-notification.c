@@ -102,6 +102,27 @@ get_implementation(nsv_notification *n)
   return NULL;
 }
 
+void
+nsv_notification_volume_changed(int volume)
+{
+  struct nsv_notification *n;
+  struct notification_impl *impl;
+
+  if (!mgr)
+    return;
+
+  n = mgr->current_notification;
+  if (n == NULL)
+    return;
+
+  impl = get_implementation(n);
+  if (impl == NULL || impl->volume_changed == NULL)
+    return;
+
+  n->volume = volume;
+  impl->volume_changed(n, volume);
+}
+
 static DBusHandlerResult
 _nsv_notification_dbus_filter_cb(DBusConnection *connection,
                                  DBusMessage *message, void *user_data)
